@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+set -eu
+
+repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+
+echo "Running backend ktlint..."
+(cd "$repo_root/backend" && ./gradlew ktlintFormat && ./gradlew ktlintCheck)
+
+echo "Running mobile ktlint..."
+(cd "$repo_root/mobile" && ./gradlew ktlintFormat && ./gradlew ktlintCheck)

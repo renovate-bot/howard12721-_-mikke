@@ -1,0 +1,311 @@
+x-flyway-common: &flyway-common
+  image: flyway/flyway:12.4.0
+  depends_on:
+    mariadb:
+      condition: service_healthy
+  profiles: [ "migration" ]
+
+services:
+  mariadb:
+    image: mariadb:11.8.6-noble
+    container_name: mikke-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: mikke
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./docker/debug/mariadb/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "mariadb-admin ping -hmariadb -uroot -p$$MARIADB_ROOT_PASSWORD" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  redis:
+    image: redis:8.6.2-alpine3.23
+    container_name: mikke-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: mikke-api
+    environment:
+      PORT: "8080"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      IDENTITY_SERVICE_HOST: identity-service
+      IDENTITY_SERVICE_PORT: "50051"
+      FRIENDSHIP_SERVICE_HOST: friendship-service
+      FRIENDSHIP_SERVICE_PORT: "50052"
+      POST_SERVICE_HOST: post-service
+      POST_SERVICE_PORT: "50053"
+      MEDIA_SERVICE_HOST: media-service
+      MEDIA_SERVICE_PORT: "50054"
+      GUESS_SERVICE_HOST: guess-service
+      GUESS_SERVICE_PORT: "50055"
+      FEED_SERVICE_HOST: feed-service
+      FEED_SERVICE_PORT: "50056"
+      NOTIFICATION_SERVICE_HOST: notification-service
+      NOTIFICATION_SERVICE_PORT: "50057"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      friendship-service:
+        condition: service_started
+      post-service:
+        condition: service_started
+      media-service:
+        condition: service_started
+      guess-service:
+        condition: service_started
+      feed-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: services/identity-service/Dockerfile
+    container_name: mikke-identity-service
+    environment:
+      IDENTITY_SERVICE_PORT: "50051"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: identity_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50051:50051"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  friendship-service:
+    build:
+      context: .
+      dockerfile: services/friendship-service/Dockerfile
+    container_name: mikke-friendship-service
+    environment:
+      FRIENDSHIP_SERVICE_PORT: "50052"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: friendship_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50052:50052"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  post-service:
+    build:
+      context: .
+      dockerfile: services/post-service/Dockerfile
+    container_name: mikke-post-service
+    environment:
+      POST_SERVICE_PORT: "50053"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: post_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50053:50053"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  media-service:
+    build:
+      context: .
+      dockerfile: services/media-service/Dockerfile
+    container_name: mikke-media-service
+    environment:
+      MEDIA_SERVICE_PORT: "50054"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: media_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50054:50054"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  guess-service:
+    build:
+      context: .
+      dockerfile: services/guess-service/Dockerfile
+    container_name: mikke-guess-service
+    environment:
+      GUESS_SERVICE_PORT: "50055"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: guess_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50055:50055"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  feed-service:
+    build:
+      context: .
+      dockerfile: services/feed-service/Dockerfile
+    container_name: mikke-feed-service
+    environment:
+      FEED_SERVICE_PORT: "50056"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: feed_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50056:50056"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: mikke-notification-service
+    environment:
+      NOTIFICATION_SERVICE_PORT: "50057"
+      MARIADB_HOST: mariadb
+      MARIADB_PORT: "3306"
+      MARIADB_DATABASE: notification_service
+      MARIADB_USER: mikke
+      MARIADB_PASSWORD: mikke
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "50057:50057"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  flyway-identity-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/identity-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/identity_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-friendship-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/friendship-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/friendship_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-post-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/post-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/post_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-media-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/media-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/media_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-guess-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/guess-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/guess_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-feed-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/feed-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/feed_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+  flyway-notification-service:
+    <<: *flyway-common
+    volumes:
+      - ../infra/migrations/notification-service:/flyway/sql:ro
+    command:
+      - -url=jdbc:mariadb://mariadb:3306/notification_service
+      - -user=mikke
+      - -password=mikke
+      - migrate
+
+volumes:
+  mariadb-data:
