@@ -30,6 +30,9 @@ subprojects {
 
         extensions.configure<KotlinJvmProjectExtension> {
             jvmToolchain(21)
+            compilerOptions {
+                optIn.add("kotlin.uuid.ExperimentalUuidApi")
+            }
         }
     }
 
