@@ -29,6 +29,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Lint
+        working-directory: backend
+        run: ./gradlew ktlintCheck
+
       - name: Build
         working-directory: backend
         run: ./gradlew build
