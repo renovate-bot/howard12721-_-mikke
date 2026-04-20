@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package mikke.identity.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "jp.xhw.mikke.identity.v1";
+
+service IdentityService {
+  // Registers a new user in the identity domain.
+  // This API assumes email/password sign up as the initial auth method.
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+
+  // Authenticates a user and returns a session for the client.
+  rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
+
+  // Exchanges a refresh token for a new session.
+  rpc RefreshSession(RefreshSessionRequest) returns (RefreshSessionResponse);
+
+  // Returns the current authenticated user.
+  // The caller is identified from auth context (e.g. JWT sub), not from request fields.
+  rpc GetMe(GetMeRequest) returns (GetMeResponse);
+}
+
+message RegisterUserRequest {
+  string email = 1;
+  string password = 2;
+  string username = 3;
+  string display_name = 4;
+}
+
+message RegisterUserResponse {
+  User user = 1;
+  AuthSession session = 2;
+}
+
+message LoginUserRequest {
+  // Login identifier. The server may accept email or username.
+  string login_id = 1;
+  string password = 2;
+}
+
+message LoginUserResponse {
+  User user = 1;
+  AuthSession session = 2;
+}
+
+message RefreshSessionRequest {
+  string refresh_token = 1;
+}
+
+message RefreshSessionResponse {
+  AuthSession session = 1;
+}
+
+message GetMeRequest {}
+
+message GetMeResponse {
+  User user = 1;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string username = 3;
+  string display_name = 4;
+  UserStatus status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message AuthSession {
+  string access_token = 1;
+  string refresh_token = 2;
+  google.protobuf.Timestamp access_token_expires_at = 3;
+  google.protobuf.Timestamp refresh_token_expires_at = 4;
+}
+
+enum UserStatus {
+  USER_STATUS_UNSPECIFIED = 0;
+  USER_STATUS_ACTIVE = 1;
+  USER_STATUS_SUSPENDED = 2;
+  USER_STATUS_DEACTIVATED = 3;
+}
