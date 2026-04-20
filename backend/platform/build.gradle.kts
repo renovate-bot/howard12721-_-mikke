@@ -14,6 +14,8 @@ dependencies {
     implementation(libs.redis.client)
     implementation(libs.hikari.cp)
     implementation(libs.mariadb.client)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
     implementation(libs.kotlin.logging)
     implementation(libs.opentelemetry.api)
     implementation(libs.opentelemetry.sdk)
