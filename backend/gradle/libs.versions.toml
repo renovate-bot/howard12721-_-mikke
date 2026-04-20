@@ -7,9 +7,11 @@ graphql-kotlin = "9.2.0"
 grpc = "1.80.0"
 grpc-kotlin = "1.5.0"
 protobuf = "4.34.1"
+protobuf-gradle-plugin = "0.9.6"
 lettuce = "7.5.1.RELEASE"
 hikari = "7.0.2"
 mariadb = "3.5.8"
+exposed = "1.2.0"
 logback = "1.5.32"
 kotlin-logging = "8.0.01"
 opentelemetry = "1.61.0"
@@ -38,10 +40,14 @@ grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
+protobuf-gradle-plugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "protobuf-gradle-plugin" }
 
 redis-client = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 mariadb-client = { module = "org.mariadb.jdbc:mariadb-java-client", version.ref = "mariadb" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
