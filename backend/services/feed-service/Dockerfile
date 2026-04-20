@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21.0.10_7-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.2_10-jdk-jammy AS builder
 
 WORKDIR /workspace
 
@@ -11,7 +11,7 @@ COPY services ./services
 
 RUN ./gradlew :services:feed-service:installDist --no-daemon
 
-FROM eclipse-temurin:21.0.10_7-jre-jammy AS runtime
+FROM eclipse-temurin:25.0.2_10-jre-jammy AS runtime
 
 WORKDIR /opt/app
 
