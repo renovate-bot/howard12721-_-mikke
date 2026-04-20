@@ -1,4 +1,5 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import java.io.File
 
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
@@ -15,4 +16,11 @@ val libsCatalog = the<VersionCatalogsExtension>().named("libs")
 
 ktlint {
     android.set(true)
+    filter {
+        exclude { element ->
+            element.file.path
+                .replace(File.separatorChar, '/')
+                .contains("/generated/")
+        }
+    }
 }

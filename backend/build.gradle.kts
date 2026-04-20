@@ -1,7 +1,5 @@
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.testing.Test
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 plugins {
     alias(libs.plugins.kotlin.jvm) apply false
@@ -27,6 +25,16 @@ subprojects {
 
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+        extensions.configure<KtlintExtension> {
+            filter {
+                exclude { element ->
+                    element.file.path
+                        .replace(File.separatorChar, '/')
+                        .contains("/generated/")
+                }
+            }
+        }
 
         extensions.configure<KotlinJvmProjectExtension> {
             jvmToolchain(21)
