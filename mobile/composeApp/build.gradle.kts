@@ -8,6 +8,10 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+compose.resources {
+    packageOfResClass = "jp.xhw.mikke.mobile"
+}
+
 kotlin {
     compilerOptions {
         optIn.add("kotlin.uuid.ExperimentalUuidApi")

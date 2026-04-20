@@ -31,10 +31,3 @@ extensions.configure<ProtobufExtension> {
     }
 }
 
-pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    extensions.configure<SourceSetContainer> {
-        named("main") {
-            java.srcDir(layout.buildDirectory.dir("generated/sources/proto/main/grpckt"))
-        }
-    }
-}
