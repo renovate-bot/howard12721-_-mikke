@@ -1,7 +1,9 @@
 package jp.xhw.mikke.api.auth.infrastructure
 
 import com.google.protobuf.Timestamp
-import io.grpc.*
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import io.grpc.Status
 import jp.xhw.mikke.api.auth.application.*
 import jp.xhw.mikke.api.http.ApiErrorCode
 import jp.xhw.mikke.api.http.ApiHttpException
@@ -9,7 +11,11 @@ import jp.xhw.mikke.identity.v1.IdentityServiceGrpcKt
 import jp.xhw.mikke.identity.v1.LoginUserRequest
 import jp.xhw.mikke.identity.v1.LoginUserResponse
 import jp.xhw.mikke.identity.v1.UserStatus
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.nio.channels.ClosedChannelException
 import java.time.Instant
+import java.util.concurrent.TimeoutException
 
 class GrpcIdentityAuthGateway(
     private val channel: ManagedChannel,
@@ -29,13 +35,7 @@ class GrpcIdentityAuthGateway(
                         .build(),
                 ).toLoginResult()
         } catch (e: Exception) {
-            when (e) {
-                is StatusException,
-                is StatusRuntimeException,
-                -> throw e.toApiHttpException()
-
-                else -> throw e
-            }
+            throw e.toApiHttpException()
         }
 
     override fun close() {
@@ -95,19 +95,43 @@ private fun UserStatus.toApiStatus(): String =
 
 private fun Exception.toApiHttpException(): ApiHttpException {
     val status = Status.fromThrowable(this)
-    val errorCode =
-        when (status.code) {
-            Status.Code.INVALID_ARGUMENT -> ApiErrorCode.InvalidRequest
-            Status.Code.UNAUTHENTICATED -> ApiErrorCode.Unauthenticated
-            Status.Code.NOT_FOUND -> ApiErrorCode.NotFound
-            Status.Code.ALREADY_EXISTS -> ApiErrorCode.Conflict
-            Status.Code.UNAVAILABLE -> ApiErrorCode.UpstreamUnavailable
-            Status.Code.DEADLINE_EXCEEDED -> ApiErrorCode.UpstreamTimeout
-            else -> ApiErrorCode.UpstreamFailure
-        }
+    val errorCode = status.toApiErrorCode(rootCause())
 
     return ApiHttpException(
         status = errorCode.status,
-        message = status.description ?: "Identity service request failed",
+        message = status.description ?: defaultUpstreamErrorMessage(errorCode),
     )
 }
+
+private fun Status.toApiErrorCode(rootCause: Throwable?): ApiErrorCode =
+    when {
+        code == Status.Code.INVALID_ARGUMENT -> ApiErrorCode.InvalidRequest
+        code == Status.Code.UNAUTHENTICATED -> ApiErrorCode.Unauthenticated
+        code == Status.Code.NOT_FOUND -> ApiErrorCode.NotFound
+        code == Status.Code.ALREADY_EXISTS -> ApiErrorCode.Conflict
+        code == Status.Code.DEADLINE_EXCEEDED -> ApiErrorCode.UpstreamTimeout
+        code == Status.Code.UNAVAILABLE -> ApiErrorCode.UpstreamUnavailable
+        rootCause is SocketTimeoutException || rootCause is TimeoutException -> ApiErrorCode.UpstreamTimeout
+        rootCause is ConnectException || rootCause is ClosedChannelException -> ApiErrorCode.UpstreamUnavailable
+        else -> ApiErrorCode.UpstreamFailure
+    }
+
+private fun Exception.rootCause(): Throwable {
+    var current: Throwable = this
+    while (current.cause != null) {
+        current = current.cause!!
+    }
+    return current
+}
+
+private fun defaultUpstreamErrorMessage(errorCode: ApiErrorCode): String =
+    when (errorCode) {
+        ApiErrorCode.UpstreamUnavailable -> "Backend service is unavailable"
+        ApiErrorCode.UpstreamTimeout -> "Backend service request timed out"
+        ApiErrorCode.UpstreamFailure -> "Backend service request failed"
+        ApiErrorCode.InvalidRequest -> "Invalid request"
+        ApiErrorCode.Unauthenticated -> "Authentication failed"
+        ApiErrorCode.NotFound -> "Resource not found"
+        ApiErrorCode.Conflict -> "Conflict"
+        ApiErrorCode.InternalError -> "Internal server error"
+    }

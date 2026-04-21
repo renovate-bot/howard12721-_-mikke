@@ -21,6 +21,12 @@ fun Application.configureApiErrorHandling() {
                 message = ApiErrorResponse(message = cause.message),
             )
         }
+        exception<Throwable> { call, cause ->
+            call.respond(
+                status = ApiErrorCode.InternalError.status,
+                message = ApiErrorResponse(message = cause.message ?: "Internal server error"),
+            )
+        }
     }
 }
 
@@ -44,4 +50,5 @@ enum class ApiErrorCode(
     UpstreamUnavailable(HttpStatusCode.ServiceUnavailable),
     UpstreamTimeout(HttpStatusCode.GatewayTimeout),
     UpstreamFailure(HttpStatusCode.BadGateway),
+    InternalError(HttpStatusCode.InternalServerError),
 }
