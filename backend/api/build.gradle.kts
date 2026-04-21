@@ -10,6 +10,7 @@ application {
 
 dependencies {
     implementation(project(":platform"))
+    implementation(project(":services:identity-service"))
 
     implementation(libs.bundles.ktor.server)
     implementation(libs.graphql.kotlin.ktor.server)
@@ -21,4 +22,6 @@ dependencies {
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.ktor.server.test.host)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
