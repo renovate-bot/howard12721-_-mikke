@@ -19,4 +19,7 @@ mobile/.cxx/
 mobile/**/xcuserdata/
 mobile/**/xcshareddata/WorkspaceSettings.xcsettings
 
+AGENTS.md
+CLAUDE.md
+
 docs/
