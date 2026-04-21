@@ -15,8 +15,8 @@ fun main() {
     apiServer().start(wait = true)
 }
 
-internal fun apiServer(port: Int = System.getenv("PORT")?.toIntOrNull() ?: 8080): ApplicationEngine =
-    embeddedServer(factory = Netty, port = port, module = Application::apiModule).engine
+internal fun apiServer(port: Int = System.getenv("PORT")?.toIntOrNull() ?: 8080) =
+    embeddedServer(factory = Netty, port = port, module = Application::apiModule)
 
 fun Application.apiModule() {
     apiModule(dependencies = ApiDependencies.fromEnvironment())
