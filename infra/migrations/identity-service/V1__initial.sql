@@ -1,4 +1,4 @@
-のCREATE TABLE identity_users (
+CREATE TABLE identity_users (
     id CHAR(36) NOT NULL,
     email VARCHAR(255) NOT NULL,
     normalized_email VARCHAR(255) NOT NULL,
