@@ -5,10 +5,7 @@ import jp.xhw.mikke.platform.database.TransactionRunner
 import jp.xhw.mikke.services.identity.model.Email
 import jp.xhw.mikke.services.identity.model.IdentityUser
 import jp.xhw.mikke.services.identity.model.UserId
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class IdentityServiceTest {
@@ -66,7 +63,10 @@ class IdentityServiceTest {
         assertNotNull(repository.savedUser)
         assertEquals("alice@example.com", result.user.email.value)
         assertEquals("alice", result.user.username.value)
-        assertTrue(result.session.accessToken.value.isNotBlank())
+        assertTrue(
+            result.session.accessToken.value
+                .isNotBlank(),
+        )
     }
 }
 
