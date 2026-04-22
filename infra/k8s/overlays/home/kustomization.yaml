@@ -24,3 +24,21 @@ images:
     newTag: latest
   - name: ghcr.io/howard12721/mikke-notification-service
     newTag: latest
+
+replicas:
+  - name: api
+    count: 1
+  - name: identity-service
+    count: 1
+  - name: friendship-service
+    count: 1
+  - name: post-service
+    count: 1
+  - name: media-service
+    count: 1
+  - name: guess-service
+    count: 1
+  - name: feed-service
+    count: 1
+  - name: notification-service
+    count: 1

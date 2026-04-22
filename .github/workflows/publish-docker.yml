@@ -6,8 +6,9 @@ on:
       - main
     paths:
       - 'backend/**'
-      - 'infra/k8s/base/sql/**'
-      - 'infra/k8s/migrations/**'
+      - 'infra/docker/**'
+      - 'infra/k8s/base/database/**'
+      - 'infra/k8s/images/migrations/**'
       - '.github/workflows/publish-docker.yml'
   workflow_dispatch:
 
@@ -34,31 +35,31 @@ jobs:
         include:
           - service: api
             context: backend
-            dockerfile: api/Dockerfile
+            dockerfile: backend/api/Dockerfile
           - service: migrations
             context: infra/k8s
-            dockerfile: migrations/Dockerfile
+            dockerfile: infra/k8s/images/migrations/Dockerfile
           - service: identity-service
             context: backend
-            dockerfile: services/identity-service/Dockerfile
+            dockerfile: backend/services/identity-service/Dockerfile
           - service: post-service
             context: backend
-            dockerfile: services/post-service/Dockerfile
+            dockerfile: backend/services/post-service/Dockerfile
           - service: friendship-service
             context: backend
-            dockerfile: services/friendship-service/Dockerfile
+            dockerfile: backend/services/friendship-service/Dockerfile
           - service: feed-service
             context: backend
-            dockerfile: services/feed-service/Dockerfile
+            dockerfile: backend/services/feed-service/Dockerfile
           - service: media-service
             context: backend
-            dockerfile: services/media-service/Dockerfile
+            dockerfile: backend/services/media-service/Dockerfile
           - service: notification-service
             context: backend
-            dockerfile: services/notification-service/Dockerfile
+            dockerfile: backend/services/notification-service/Dockerfile
           - service: guess-service
             context: backend
-            dockerfile: services/guess-service/Dockerfile
+            dockerfile: backend/services/guess-service/Dockerfile
 
     steps:
       - name: Checkout

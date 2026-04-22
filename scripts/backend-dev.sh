@@ -3,10 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-COMPOSE_FILE="${BACKEND_DIR}/compose.debug.yml"
+ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+COMPOSE_FILE="${ROOT_DIR}/infra/docker/compose.dev.yml"
 
-readonly BACKEND_DIR COMPOSE_FILE
+readonly ROOT_DIR COMPOSE_FILE
 
 compose() {
   docker compose -f "${COMPOSE_FILE}" "$@"
@@ -15,25 +15,12 @@ compose() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/debug-compose.sh full [--migrate]
-  ./scripts/debug-compose.sh sync [--migrate] <service...>
-
-Commands:
-  full
-    Build and start the whole debug stack.
-
-  sync
-    Rebuild and restart only the specified services without touching their
-    compose dependencies. This is the fast path for day-to-day development.
-
-Options:
-  --migrate
-    Run Flyway for the affected services before starting them.
-
-Examples:
-  ./scripts/debug-compose.sh full --migrate
-  ./scripts/debug-compose.sh sync post-service
-  ./scripts/debug-compose.sh sync --migrate api post-service
+  ./scripts/backend-dev.sh up [--migrate]
+  ./scripts/backend-dev.sh sync [--migrate] <service...>
+  ./scripts/backend-dev.sh migrate [all|<service...>]
+  ./scripts/backend-dev.sh logs [service...]
+  ./scripts/backend-dev.sh ps
+  ./scripts/backend-dev.sh down
 EOF
 }
 
@@ -59,6 +46,20 @@ flyway_service_for() {
     notification-service) echo "flyway-notification-service" ;;
     *) return 1 ;;
   esac
+}
+
+validate_services() {
+  local service
+
+  for service in "$@"; do
+    if [[ "${service}" == "all" ]]; then
+      continue
+    fi
+    if ! is_valid_service "${service}"; then
+      echo "Unknown service: ${service}" >&2
+      exit 1
+    fi
+  done
 }
 
 start_infra() {
@@ -91,7 +92,6 @@ main() {
   local command="${1:-}"
   local migrate=false
   local -a services=()
-  local service
 
   if [[ -z "${command}" ]]; then
     usage
@@ -120,18 +120,11 @@ main() {
   done
 
   if [[ ${#services[@]} -gt 0 ]]; then
-    for service in "${services[@]}"; do
-      if ! is_valid_service "${service}"; then
-        echo "Unknown service: ${service}" >&2
-        exit 1
-      fi
-    done
+    validate_services "${services[@]}"
   fi
 
-  cd "${BACKEND_DIR}"
-
   case "${command}" in
-    full)
+    up)
       start_infra
       if [[ "${migrate}" == "true" ]]; then
         run_all_migrations
@@ -149,6 +142,27 @@ main() {
       fi
       compose build "${services[@]}"
       compose up -d --no-deps "${services[@]}"
+      ;;
+    migrate)
+      start_infra
+      if [[ ${#services[@]} -eq 0 || "${services[0]}" == "all" ]]; then
+        run_all_migrations
+      else
+        run_migrations_for "${services[@]}"
+      fi
+      ;;
+    logs)
+      if [[ ${#services[@]} -eq 0 ]]; then
+        compose logs -f
+      else
+        compose logs -f "${services[@]}"
+      fi
+      ;;
+    ps)
+      compose ps
+      ;;
+    down)
+      compose down
       ;;
     *)
       usage

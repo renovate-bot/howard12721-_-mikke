@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: api.mikke.home.arpa
+    - host: api.mikke.uso.pw
       http:
         paths:
           - path: /

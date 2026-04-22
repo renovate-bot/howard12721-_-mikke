@@ -11,7 +11,7 @@ generatorOptions:
 configMapGenerator:
   - name: mariadb-initdb
     files:
-      - 01-create-databases.sql=sql/01-create-databases.sql
+      - 01-create-databases.sql=database/initdb/01-create-databases.sql
 
 resources:
   - namespace.yaml
