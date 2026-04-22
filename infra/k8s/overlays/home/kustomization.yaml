@@ -7,23 +7,23 @@ resources:
 
 images:
   - name: ghcr.io/howard12721/mikke-api
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-migrations
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-identity-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-friendship-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-post-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-media-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-guess-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-feed-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
   - name: ghcr.io/howard12721/mikke-notification-service
-    newTag: latest
+    newTag: sha-1a7e91290ceaff98114b0abd7be413bfbedbe6bd
 
 replicas:
   - name: api
