@@ -29,6 +29,8 @@ spec:
       labels:
         app.kubernetes.io/name: mariadb
     spec:
+      securityContext:
+        fsGroup: 999
       containers:
         - name: mariadb
           image: mariadb:12.2.2-noble
