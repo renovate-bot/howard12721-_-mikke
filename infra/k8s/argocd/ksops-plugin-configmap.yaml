@@ -16,7 +16,7 @@ data:
           command:
             - sh
             - -c
-            - find . -name ksops-generator.yaml | grep -q .
+            - find . -name ksops-generator.yaml -print -quit | grep .
       generate:
         command:
           - sh
