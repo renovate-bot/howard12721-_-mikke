@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mikke
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/howard12721/mikke.git
+    targetRevision: main
+    path: infra/k8s/overlays/home
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mikke
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mikke
+
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+
+configMapGenerator:
+  - name: mariadb-initdb
+    files:
+      - 01-create-databases.sql=sql/01-create-databases.sql
+  - name: identity-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/identity-service/V1__initial.sql
+  - name: friendship-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/friendship-service/V1__initial.sql
+  - name: post-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/post-service/V1__initial.sql
+  - name: media-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/media-service/V1__initial.sql
+  - name: guess-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/guess-service/V1__initial.sql
+  - name: feed-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/feed-service/V1__initial.sql
+  - name: notification-service-migration
+    files:
+      - V1__initial.sql=sql/migrations/notification-service/V1__initial.sql
+
+resources:
+  - namespace.yaml
+  - infrastructure.yaml
+  - services
