@@ -1,6 +1,7 @@
 package jp.xhw.mikke.services.notification
 
 import jp.xhw.mikke.platform.grpc.grpcServer
+import jp.xhw.mikke.platform.grpc.installGrpcHealth
 import jp.xhw.mikke.platform.grpc.startAndAwait
 
 fun main() {
@@ -8,5 +9,7 @@ fun main() {
         serviceName = "notification-service",
         portEnv = "NOTIFICATION_SERVICE_PORT",
         defaultPort = 50057,
-    ).startAndAwait()
+    ) {
+        installGrpcHealth(serviceName = "notification-service")
+    }.startAndAwait()
 }
