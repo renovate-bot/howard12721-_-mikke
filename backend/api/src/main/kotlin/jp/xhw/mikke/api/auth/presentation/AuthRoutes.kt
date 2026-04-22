@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import jp.xhw.mikke.api.auth.application.AuthApiService
 import jp.xhw.mikke.api.auth.application.LoginCommand
+import jp.xhw.mikke.api.auth.application.RegisterCommand
 
 fun Route.installAuthRoutes(authApiService: AuthApiService) {
     route("/api/v1/auth") {
@@ -15,6 +16,24 @@ fun Route.installAuthRoutes(authApiService: AuthApiService) {
                 authApiService.login(
                     LoginCommand(
                         loginId = request.loginId,
+                        password = request.password,
+                    ),
+                )
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = result.toResponse(),
+            )
+        }
+
+        post("/register") {
+            val request = call.receive<RegisterRequest>()
+            val result =
+                authApiService.register(
+                    RegisterCommand(
+                        email = request.email,
+                        username = request.username,
+                        displayName = request.displayName,
                         password = request.password,
                     ),
                 )

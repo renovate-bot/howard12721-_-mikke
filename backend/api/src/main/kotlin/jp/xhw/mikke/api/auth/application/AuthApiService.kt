@@ -2,6 +2,7 @@ package jp.xhw.mikke.api.auth.application
 
 import jp.xhw.mikke.api.http.ApiErrorCode
 import jp.xhw.mikke.api.http.ApiHttpException
+import jp.xhw.mikke.platform.auth.PasswordPolicy
 
 class AuthApiService(
     private val identityAuthGateway: IdentityAuthGateway,
@@ -25,6 +26,56 @@ class AuthApiService(
             command = command.copy(loginId = loginId),
         )
     }
+
+    suspend fun register(command: RegisterCommand): RegisterResult {
+        val email = command.email.trim()
+        val username = command.username.trim()
+        val password = command.password.trim()
+        val displayName = command.displayName.trim()
+        if (email.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "email is required",
+            )
+        }
+        if (username.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "username is required",
+            )
+        }
+        if (displayName.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "displayName is required",
+            )
+        }
+        if (password.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "password is required",
+            )
+        }
+
+        try {
+            PasswordPolicy.validate(password)
+        } catch (e: IllegalArgumentException) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = e.message ?: "password is invalid",
+            )
+        }
+
+        return identityAuthGateway.register(
+            command =
+                command.copy(
+                    email = email,
+                    username = username,
+                    displayName = displayName,
+                    password = password,
+                ),
+        )
+    }
 }
 
 data class LoginCommand(
@@ -33,6 +84,18 @@ data class LoginCommand(
 )
 
 data class LoginResult(
+    val user: AuthenticatedUser,
+    val session: AuthSession,
+)
+
+data class RegisterCommand(
+    val email: String,
+    val username: String,
+    val displayName: String,
+    val password: String,
+)
+
+data class RegisterResult(
     val user: AuthenticatedUser,
     val session: AuthSession,
 )

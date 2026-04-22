@@ -5,12 +5,10 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import jp.xhw.mikke.api.auth.application.*
+import jp.xhw.mikke.api.auth.application.AuthSession
 import jp.xhw.mikke.api.http.ApiErrorCode
 import jp.xhw.mikke.api.http.ApiHttpException
-import jp.xhw.mikke.identity.v1.IdentityServiceGrpcKt
-import jp.xhw.mikke.identity.v1.LoginUserRequest
-import jp.xhw.mikke.identity.v1.LoginUserResponse
-import jp.xhw.mikke.identity.v1.UserStatus
+import jp.xhw.mikke.identity.v1.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.nio.channels.ClosedChannelException
@@ -26,14 +24,14 @@ class GrpcIdentityAuthGateway(
 ) : IdentityAuthGateway {
     override suspend fun login(command: LoginCommand): LoginResult =
         try {
-            stub
-                .loginUser(
-                    LoginUserRequest
-                        .newBuilder()
-                        .setLoginId(command.loginId)
-                        .setPassword(command.password)
-                        .build(),
-                ).toLoginResult()
+            stub.loginUser(command.toRequestModel()).toLoginResult()
+        } catch (e: Exception) {
+            throw e.toApiHttpException()
+        }
+
+    override suspend fun register(command: RegisterCommand): RegisterResult =
+        try {
+            stub.registerUser(command.toRequestModel()).toRegisterResult()
         } catch (e: Exception) {
             throw e.toApiHttpException()
         }
@@ -57,8 +55,45 @@ class GrpcIdentityAuthGateway(
     }
 }
 
+private fun LoginCommand.toRequestModel(): LoginUserRequest =
+    LoginUserRequest
+        .newBuilder()
+        .setLoginId(loginId)
+        .setPassword(password)
+        .build()
+
 private fun LoginUserResponse.toLoginResult(): LoginResult =
     LoginResult(
+        user =
+            AuthenticatedUser(
+                id = user.id,
+                email = user.email,
+                username = user.username,
+                displayName = user.displayName,
+                status = user.status.toApiStatus(),
+                createdAt = user.createdAt.toInstantString(),
+                updatedAt = user.updatedAt.toInstantString(),
+            ),
+        session =
+            AuthSession(
+                accessToken = session.accessToken,
+                refreshToken = session.refreshToken,
+                accessTokenExpiresAt = session.accessTokenExpiresAt.toInstantString(),
+                refreshTokenExpiresAt = session.refreshTokenExpiresAt.toInstantString(),
+            ),
+    )
+
+private fun RegisterCommand.toRequestModel(): RegisterUserRequest =
+    RegisterUserRequest
+        .newBuilder()
+        .setEmail(email)
+        .setUsername(username)
+        .setDisplayName(displayName)
+        .setPassword(password)
+        .build()
+
+private fun RegisterUserResponse.toRegisterResult(): RegisterResult =
+    RegisterResult(
         user =
             AuthenticatedUser(
                 id = user.id,
