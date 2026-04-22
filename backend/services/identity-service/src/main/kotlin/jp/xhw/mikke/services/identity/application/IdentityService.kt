@@ -2,6 +2,7 @@ package jp.xhw.mikke.services.identity.application
 
 import jp.xhw.mikke.platform.auth.AuthenticatedPrincipal
 import jp.xhw.mikke.platform.auth.IssuedAuthSession
+import jp.xhw.mikke.platform.auth.PasswordPolicy
 import jp.xhw.mikke.platform.auth.jwt.JwtTokenService
 import jp.xhw.mikke.platform.database.TransactionRunner
 import jp.xhw.mikke.services.identity.model.*
@@ -20,6 +21,7 @@ class IdentityService(
             transactionRunner.runInTransaction {
                 try {
                     val now = clock.instant()
+                    PasswordPolicy.validate(command.password)
                     IdentityUser(
                         id = UserId(Uuid.random()),
                         email = Email(command.email.normalizeEmail()),
