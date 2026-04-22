@@ -27,27 +27,24 @@ spec:
         - "-c"
         - until nc -z redis 6379; do sleep 2; done
       - name: migrate-db
-        image: flyway/flyway:12.4.0
-        args:
-        - migrate
+        image: ghcr.io/howard12721/mikke-migrations:latest
         env:
-        - name: FLYWAY_URL
-          value: jdbc:mariadb://mariadb:3306/guess_service
-        - name: FLYWAY_USER
+        - name: MIGRATION_SERVICE
+          value: guess-service
+        - name: MARIADB_HOST
+          value: mariadb
+        - name: MARIADB_PORT
+          value: '3306'
+        - name: MARIADB_USER
           valueFrom:
             secretKeyRef:
               name: mariadb-auth
               key: username
-        - name: FLYWAY_PASSWORD
+        - name: MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mariadb-auth
               key: password
-        - name: FLYWAY_LOCATIONS
-          value: filesystem:/flyway/sql
-        volumeMounts:
-        - name: migration
-          mountPath: "/flyway/sql"
       containers:
       - name: guess-service
         image: ghcr.io/howard12721/mikke-guess-service:latest
@@ -88,7 +85,3 @@ spec:
             port: 50055
           initialDelaySeconds: 30
           periodSeconds: 20
-      volumes:
-      - name: migration
-        configMap:
-          name: guess-service-migration

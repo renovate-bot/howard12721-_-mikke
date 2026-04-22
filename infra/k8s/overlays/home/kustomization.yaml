@@ -8,6 +8,8 @@ resources:
 images:
   - name: ghcr.io/howard12721/mikke-api
     newTag: latest
+  - name: ghcr.io/howard12721/mikke-migrations
+    newTag: latest
   - name: ghcr.io/howard12721/mikke-identity-service
     newTag: latest
   - name: ghcr.io/howard12721/mikke-friendship-service

@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'infra/k8s/base/sql/**'
+      - 'infra/k8s/migrations/**'
       - '.github/workflows/publish-docker.yml'
   workflow_dispatch:
 
@@ -31,21 +33,32 @@ jobs:
       matrix:
         include:
           - service: api
-            dockerfile: backend/api/Dockerfile
+            context: backend
+            dockerfile: api/Dockerfile
+          - service: migrations
+            context: infra/k8s
+            dockerfile: migrations/Dockerfile
           - service: identity-service
-            dockerfile: backend/services/identity-service/Dockerfile
+            context: backend
+            dockerfile: services/identity-service/Dockerfile
           - service: post-service
-            dockerfile: backend/services/post-service/Dockerfile
+            context: backend
+            dockerfile: services/post-service/Dockerfile
           - service: friendship-service
-            dockerfile: backend/services/friendship-service/Dockerfile
+            context: backend
+            dockerfile: services/friendship-service/Dockerfile
           - service: feed-service
-            dockerfile: backend/services/feed-service/Dockerfile
+            context: backend
+            dockerfile: services/feed-service/Dockerfile
           - service: media-service
-            dockerfile: backend/services/media-service/Dockerfile
+            context: backend
+            dockerfile: services/media-service/Dockerfile
           - service: notification-service
-            dockerfile: backend/services/notification-service/Dockerfile
+            context: backend
+            dockerfile: services/notification-service/Dockerfile
           - service: guess-service
-            dockerfile: backend/services/guess-service/Dockerfile
+            context: backend
+            dockerfile: services/guess-service/Dockerfile
 
     steps:
       - name: Checkout
@@ -66,7 +79,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
-          context: backend
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
