@@ -1,26 +1,4 @@
 apiVersion: v1
-kind: Secret
-metadata:
-  name: mariadb-auth
-  annotations:
-    argocd.argoproj.io/sync-wave: "-2"
-type: Opaque
-stringData:
-  root-password: change-me-root-password
-  username: mikke
-  password: change-me-app-password
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: identity-auth
-  annotations:
-    argocd.argoproj.io/sync-wave: "-2"
-type: Opaque
-stringData:
-  jwt-secret: change-me-identity-jwt-secret
----
-apiVersion: v1
 kind: Service
 metadata:
   name: mariadb

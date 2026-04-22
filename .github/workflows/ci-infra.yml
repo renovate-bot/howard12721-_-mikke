@@ -90,10 +90,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v5
-        with:
-          version: latest
-
       - name: Render home overlay
-        run: kubectl kustomize infra/k8s/overlays/home > /tmp/mikke-home-overlay.yaml
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          if [ -z "${SOPS_AGE_KEY}" ]; then
+            echo "SOPS_AGE_KEY GitHub Actions secret is required to render encrypted manifests." >&2
+            exit 1
+          fi
+
+          mkdir -p "${RUNNER_TEMP}/sops/age"
+          printf '%s\n' "${SOPS_AGE_KEY}" > "${RUNNER_TEMP}/sops/age/keys.txt"
+          chmod 600 "${RUNNER_TEMP}/sops/age/keys.txt"
+
+          SOPS_AGE_KEY_FILE="${RUNNER_TEMP}/sops/age/keys.txt" \
+            ./scripts/render-home-overlay.sh > /tmp/mikke-home-overlay.yaml

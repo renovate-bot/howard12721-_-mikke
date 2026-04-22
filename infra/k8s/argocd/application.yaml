@@ -9,6 +9,7 @@ spec:
     repoURL: https://github.com/howard12721/mikke.git
     targetRevision: main
     path: infra/k8s/overlays/home
+    plugin: {}
   destination:
     server: https://kubernetes.default.svc
     namespace: mikke

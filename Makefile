@@ -30,4 +30,4 @@ backend-dev-down:
 	./scripts/backend-dev.sh down
 
 k8s-render:
-	kubectl kustomize infra/k8s/overlays/home
+	./scripts/render-home-overlay.sh

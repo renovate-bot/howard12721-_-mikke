@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: ^infra/k8s/overlays/home/.*\.sops\.ya?ml$
+    encrypted_regex: ^(data|stringData)$
+    age: age16w7nxe8es9gnkgsmyl70aejcua650kqr6883u5qms9vjl3ytxvnsu3y0ty

@@ -23,3 +23,5 @@ AGENTS.md
 CLAUDE.md
 
 docs/
+.bin/
+.secrets/
