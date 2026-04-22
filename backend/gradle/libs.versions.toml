@@ -2,7 +2,7 @@
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.11.0"
-ktor = "3.4.2"
+ktor = "3.4.3"
 graphql-kotlin = "9.2.0"
 grpc = "1.80.0"
 grpc-kotlin = "1.5.0"
