@@ -30,18 +30,18 @@ images:
 
 replicas:
   - name: api
-    count: 1
-  - name: identity-service
     count: 3
+  - name: identity-service
+    count: 2
   - name: friendship-service
-    count: 1
+    count: 2
   - name: post-service
-    count: 1
+    count: 2
   - name: media-service
-    count: 1
+    count: 2
   - name: guess-service
-    count: 1
+    count: 2
   - name: feed-service
-    count: 1
+    count: 2
   - name: notification-service
-    count: 1
+    count: 2
