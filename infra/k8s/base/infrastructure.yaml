@@ -29,6 +29,24 @@ spec:
       labels:
         app.kubernetes.io/name: mariadb
     spec:
+      securityContext:
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: fix-data-permissions
+          image: mariadb:12.2.2-noble
+          command:
+            - /bin/sh
+            - -lc
+            - >
+              mkdir -p /var/lib/mysql &&
+              find /var/lib/mysql \( \! -user 999 -o \! -group 999 \) -exec chown 999:999 '{}' +
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
       containers:
         - name: mariadb
           image: mariadb:12.2.2-noble
