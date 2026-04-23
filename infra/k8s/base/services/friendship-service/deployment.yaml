@@ -14,20 +14,8 @@ spec:
         app.kubernetes.io/name: friendship-service
     spec:
       initContainers:
-      - name: wait-for-mariadb
-        image: busybox:1.36
-        command:
-        - sh
-        - "-c"
-        - until nc -z mariadb 3306; do sleep 2; done
-      - name: wait-for-redis
-        image: busybox:1.36
-        command:
-        - sh
-        - "-c"
-        - until nc -z redis 6379; do sleep 2; done
       - name: migrate-db
-        image: ghcr.io/howard12721/mikke-migrations:sha-6d3a19f6bf5f58da15c332d0686ff5ace3d2ae80
+        image: ghcr.io/howard12721/mikke-migrations
         env:
         - name: MIGRATION_SERVICE
           value: friendship-service
@@ -47,7 +35,7 @@ spec:
               key: password
       containers:
       - name: friendship-service
-        image: ghcr.io/howard12721/mikke-friendship-service:sha-6d3a19f6bf5f58da15c332d0686ff5ace3d2ae80
+        image: ghcr.io/howard12721/mikke-friendship-service
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 50052

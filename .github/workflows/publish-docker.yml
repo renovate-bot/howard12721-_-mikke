@@ -85,7 +85,6 @@ jobs:
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}/mikke-${{ matrix.service }}:${{ env.IMAGE_TAG }}
-            ${{ env.IMAGE_PREFIX }}/mikke-${{ matrix.service }}:latest
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
@@ -103,21 +102,19 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
 
-      - name: Update image tags in manifests
+      - name: Update image tags in overlay
         run: |
           sed -Ei "s/^([[:space:]]*newTag:[[:space:]]*).*/\1${IMAGE_TAG}/" infra/k8s/overlays/home/kustomization.yaml
-          find infra/k8s/base/services -name deployment.yaml -print0 | \
-            xargs -0 sed -Ei "s#(image: ghcr\\.io/howard12721/mikke-[[:alnum:]-]+:).*#\\1${IMAGE_TAG}#"
 
       - name: Commit updated image tags
         run: |
-          if git diff --quiet -- infra/k8s/overlays/home/kustomization.yaml infra/k8s/base/services; then
-            echo "Manifest image tags already up to date"
+          if git diff --quiet -- infra/k8s/overlays/home/kustomization.yaml; then
+            echo "Overlay image tags already up to date"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add infra/k8s/overlays/home/kustomization.yaml infra/k8s/base/services
+          git add infra/k8s/overlays/home/kustomization.yaml
           git commit -m "chore(k8s): deploy ${IMAGE_TAG}"
           git push origin HEAD:${GITHUB_REF_NAME}
