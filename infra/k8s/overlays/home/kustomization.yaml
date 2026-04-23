@@ -32,7 +32,7 @@ replicas:
   - name: api
     count: 1
   - name: identity-service
-    count: 1
+    count: 3
   - name: friendship-service
     count: 1
   - name: post-service
