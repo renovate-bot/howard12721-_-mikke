@@ -13,45 +13,97 @@ spec:
       labels:
         app.kubernetes.io/name: api
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - name: tmp
+        emptyDir: {}
       initContainers:
       - name: wait-for-identity-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z identity-service 50051; do sleep 2; done
       - name: wait-for-friendship-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z friendship-service 50052; do sleep 2; done
       - name: wait-for-post-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z post-service 50053; do sleep 2; done
       - name: wait-for-media-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z media-service 50054; do sleep 2; done
       - name: wait-for-guess-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z guess-service 50055; do sleep 2; done
       - name: wait-for-feed-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z feed-service 50056; do sleep 2; done
       - name: wait-for-notification-service
         image: busybox:1.36
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
@@ -60,6 +112,15 @@ spec:
       - name: api
         image: ghcr.io/howard12721/mikke-api:sha-0dd6c41463979d5694b4ab9cbc2f8fa04d02648b
         imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
         ports:
         - containerPort: 8080
           name: http
