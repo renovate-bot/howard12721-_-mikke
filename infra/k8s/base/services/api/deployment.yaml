@@ -110,7 +110,7 @@ spec:
         - until nc -z notification-service 50057; do sleep 2; done
       containers:
       - name: api
-        image: ghcr.io/howard12721/mikke-api:sha-0dd6c41463979d5694b4ab9cbc2f8fa04d02648b
+        image: ghcr.io/howard12721/mikke-api:sha-8ef9ce591f3b0898a3f094c754334a2ad162c0d7
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false

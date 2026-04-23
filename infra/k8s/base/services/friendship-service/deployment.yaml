@@ -49,7 +49,7 @@ spec:
         - "-c"
         - until nc -z redis 6379; do sleep 2; done
       - name: migrate-db
-        image: ghcr.io/howard12721/mikke-migrations:sha-0dd6c41463979d5694b4ab9cbc2f8fa04d02648b
+        image: ghcr.io/howard12721/mikke-migrations:sha-8ef9ce591f3b0898a3f094c754334a2ad162c0d7
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -78,7 +78,7 @@ spec:
               key: password
       containers:
       - name: friendship-service
-        image: ghcr.io/howard12721/mikke-friendship-service:sha-0dd6c41463979d5694b4ab9cbc2f8fa04d02648b
+        image: ghcr.io/howard12721/mikke-friendship-service:sha-8ef9ce591f3b0898a3f094c754334a2ad162c0d7
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
