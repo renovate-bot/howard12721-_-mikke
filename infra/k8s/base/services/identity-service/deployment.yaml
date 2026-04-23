@@ -13,52 +13,21 @@ spec:
       labels:
         app.kubernetes.io/name: identity-service
     spec:
-      automountServiceAccountToken: false
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65532
-        runAsGroup: 65532
-        seccompProfile:
-          type: RuntimeDefault
-      volumes:
-      - name: tmp
-        emptyDir: {}
       initContainers:
       - name: wait-for-mariadb
         image: busybox:1.36
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z mariadb 3306; do sleep 2; done
       - name: wait-for-redis
         image: busybox:1.36
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
         command:
         - sh
         - "-c"
         - until nc -z redis 6379; do sleep 2; done
       - name: migrate-db
-        image: ghcr.io/howard12721/mikke-migrations:sha-8ef9ce591f3b0898a3f094c754334a2ad162c0d7
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp
+        image: ghcr.io/howard12721/mikke-migrations:latest
         env:
         - name: MIGRATION_SERVICE
           value: identity-service
@@ -78,17 +47,8 @@ spec:
               key: password
       containers:
       - name: identity-service
-        image: ghcr.io/howard12721/mikke-identity-service:sha-8ef9ce591f3b0898a3f094c754334a2ad162c0d7
+        image: ghcr.io/howard12721/mikke-identity-service:latest
         imagePullPolicy: IfNotPresent
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: true
-        volumeMounts:
-        - name: tmp
-          mountPath: /tmp
         ports:
         - containerPort: 50051
           name: grpc
@@ -120,13 +80,6 @@ spec:
             secretKeyRef:
               name: identity-auth
               key: jwt-secret
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            cpu: 500m
-            memory: 512Mi
         readinessProbe:
           grpc:
             port: 50051
