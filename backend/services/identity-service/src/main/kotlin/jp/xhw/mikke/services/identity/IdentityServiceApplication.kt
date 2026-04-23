@@ -10,20 +10,26 @@ import jp.xhw.mikke.platform.grpc.installGrpcHealth
 import jp.xhw.mikke.platform.grpc.startAndAwait
 import jp.xhw.mikke.services.identity.application.IdentityService
 import jp.xhw.mikke.services.identity.application.PasswordHasher
+import jp.xhw.mikke.services.identity.application.RefreshSessionTokenService
 import jp.xhw.mikke.services.identity.infrastructure.ExposedIdentityUserRepository
+import jp.xhw.mikke.services.identity.infrastructure.ExposedRefreshSessionRepository
 
 fun main() {
     val passwordHasher = PasswordHasher()
     val database = connectMariaDbFromEnv(defaultDatabase = "identity_service")
     val userRepository = ExposedIdentityUserRepository()
+    val refreshSessionRepository = ExposedRefreshSessionRepository()
     val transactionRunner = ExposedTransactionRunner(database)
     val tokenService = JwtTokenService(secret = System.getenv("IDENTITY_JWT_SECRET") ?: "dev-identity-secret")
+    val refreshSessionTokenService = RefreshSessionTokenService()
     val identityApplicationService =
         IdentityService(
             userRepository = userRepository,
+            refreshSessionRepository = refreshSessionRepository,
             transactionRunner = transactionRunner,
             passwordHasher = passwordHasher,
             tokenService = tokenService,
+            refreshSessionTokenService = refreshSessionTokenService,
         )
     val identityService = IdentityServiceRpc(identityService = identityApplicationService)
 

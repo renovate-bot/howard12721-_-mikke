@@ -2,26 +2,30 @@ package jp.xhw.mikke.services.identity.application
 
 import jp.xhw.mikke.platform.auth.AuthenticatedPrincipal
 import jp.xhw.mikke.platform.auth.IssuedAuthSession
+import jp.xhw.mikke.platform.auth.IssuedToken
 import jp.xhw.mikke.platform.auth.PasswordPolicy
 import jp.xhw.mikke.platform.auth.jwt.JwtTokenService
 import jp.xhw.mikke.platform.database.TransactionRunner
 import jp.xhw.mikke.services.identity.model.*
-import java.time.Clock
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class IdentityService(
     private val userRepository: IdentityUserRepository,
+    private val refreshSessionRepository: RefreshSessionRepository,
     private val transactionRunner: TransactionRunner,
     private val passwordHasher: PasswordHasher,
     private val tokenService: JwtTokenService,
-    private val clock: Clock = Clock.systemUTC(),
+    private val refreshSessionTokenService: RefreshSessionTokenService = RefreshSessionTokenService(),
+    private val clock: Clock = Clock.System,
 ) {
-    fun register(command: RegisterIdentityUserCommand): AuthenticatedIdentityUser {
-        val user =
-            transactionRunner.runInTransaction {
-                try {
-                    val now = clock.instant()
-                    PasswordPolicy.validate(command.password)
+    fun register(command: RegisterIdentityUserCommand): AuthenticatedIdentityUser =
+        transactionRunner.runInTransaction {
+            try {
+                val now = clock.now()
+                PasswordPolicy.validate(command.password)
+                val user =
                     IdentityUser(
                         id = UserId(Uuid.random()),
                         email = Email(command.email.normalizeEmail()),
@@ -31,16 +35,16 @@ class IdentityService(
                         createdAt = now,
                         updatedAt = now,
                     )
-                } catch (e: IllegalArgumentException) {
-                    throw InvalidIdentityInputException(message = e.message ?: "invalid input", cause = e)
-                }.also(userRepository::saveUser)
-            }
+                userRepository.saveUser(user)
 
-        return AuthenticatedIdentityUser(
-            user = user,
-            session = tokenService.issueSession(AuthenticatedPrincipal(subject = user.id.value.toString())),
-        )
-    }
+                AuthenticatedIdentityUser(
+                    user = user,
+                    session = issueAuthSession(user.id, now),
+                )
+            } catch (e: IllegalArgumentException) {
+                throw InvalidIdentityInputException(message = e.message ?: "invalid input", cause = e)
+            }
+        }
 
     fun login(command: LoginIdentityUserCommand): AuthenticatedIdentityUser {
         val user =
@@ -57,28 +61,42 @@ class IdentityService(
             throw InvalidCredentialsException()
         }
 
-        return AuthenticatedIdentityUser(
-            user = user,
-            session = tokenService.issueSession(AuthenticatedPrincipal(subject = user.id.value.toString())),
-        )
+        val session = transactionRunner.runInTransaction { issueAuthSession(user.id, clock.now()) }
+
+        return AuthenticatedIdentityUser(user = user, session = session)
     }
 
     fun refreshSession(refreshToken: String): IssuedAuthSession {
-        val principal =
-            runCatching { tokenService.authenticateRefreshToken(refreshToken) }
-                .getOrElse { throw InvalidRefreshTokenException(cause = it) }
+        val now = clock.now()
+        val refreshTokenHash = refreshSessionTokenService.hash(refreshToken)
 
-        val userId =
-            principal.subject.toUserIdOrNull()
-                ?: throw InvalidRefreshTokenException()
-
-        val user =
-            transactionRunner.runInTransaction {
-                userRepository.findByIds(listOf(userId)).firstOrNull()
+        return transactionRunner.runInTransaction {
+            val currentSession =
+                refreshSessionRepository
+                    .findByRefreshTokenHash(refreshTokenHash)
+                    ?.takeIf { it.isActiveAt(now) }
                     ?: throw InvalidRefreshTokenException()
+
+            val user =
+                userRepository.findByIds(listOf(currentSession.userId)).firstOrNull()
+                    ?: throw InvalidRefreshTokenException()
+
+            val revoked = refreshSessionRepository.revoke(currentSession.id, now)
+            if (!revoked) {
+                throw InvalidRefreshTokenException()
             }
 
-        return tokenService.issueSession(AuthenticatedPrincipal(subject = user.id.value.toString()))
+            issueAuthSession(user.id, now)
+        }
+    }
+
+    fun logout(refreshToken: String) {
+        val now = clock.now()
+        val refreshTokenHash = refreshSessionTokenService.hash(refreshToken)
+
+        transactionRunner.runInTransaction {
+            refreshSessionRepository.revokeByRefreshTokenHash(refreshTokenHash, now)
+        }
     }
 
     fun getMe(subject: String): IdentityUser {
@@ -90,6 +108,31 @@ class IdentityService(
             userRepository.findByIds(listOf(userId)).firstOrNull()
                 ?: throw UserNotFoundException()
         }
+    }
+
+    private fun issueAuthSession(
+        userId: UserId,
+        issuedAt: Instant,
+    ): IssuedAuthSession {
+        val principal = AuthenticatedPrincipal(subject = userId.value.toString())
+        val accessToken = tokenService.issueAccessToken(principal = principal, issuedAt = issuedAt)
+        val refreshToken = refreshSessionTokenService.issueRefreshToken(issuedAt = issuedAt)
+
+        refreshSessionRepository.save(
+            RefreshSession(
+                id = RefreshSessionId(Uuid.random()),
+                userId = userId,
+                refreshTokenHash = refreshSessionTokenService.hash(refreshToken.value),
+                expiresAt = refreshToken.expiresAt,
+                revokedAt = null,
+                createdAt = issuedAt,
+            ),
+        )
+
+        return IssuedAuthSession(
+            accessToken = accessToken,
+            refreshToken = IssuedToken(value = refreshToken.value, expiresAt = refreshToken.expiresAt),
+        )
     }
 }
 

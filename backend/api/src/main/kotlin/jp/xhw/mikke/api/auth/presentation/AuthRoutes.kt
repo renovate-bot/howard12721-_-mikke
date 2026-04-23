@@ -4,9 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import jp.xhw.mikke.api.auth.application.AuthApiService
-import jp.xhw.mikke.api.auth.application.LoginCommand
-import jp.xhw.mikke.api.auth.application.RegisterCommand
+import jp.xhw.mikke.api.auth.application.*
 
 fun Route.installAuthRoutes(authApiService: AuthApiService) {
     route("/api/v1/auth") {
@@ -42,6 +40,28 @@ fun Route.installAuthRoutes(authApiService: AuthApiService) {
                 status = HttpStatusCode.OK,
                 message = result.toResponse(),
             )
+        }
+
+        post("/refresh") {
+            val request = call.receive<RefreshRequest>()
+            val result =
+                authApiService.refresh(
+                    RefreshCommand(refreshToken = request.refreshToken),
+                )
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = result.toResponse(),
+            )
+        }
+
+        post("/logout") {
+            val request = call.receive<LogoutRequest>()
+            authApiService.logout(
+                LogoutCommand(refreshToken = request.refreshToken),
+            )
+
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }

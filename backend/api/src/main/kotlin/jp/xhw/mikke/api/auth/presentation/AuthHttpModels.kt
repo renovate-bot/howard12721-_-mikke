@@ -1,6 +1,7 @@
 package jp.xhw.mikke.api.auth.presentation
 
 import jp.xhw.mikke.api.auth.application.LoginResult
+import jp.xhw.mikke.api.auth.application.RefreshResult
 import jp.xhw.mikke.api.auth.application.RegisterResult
 import kotlinx.serialization.Serializable
 
@@ -28,6 +29,21 @@ data class RegisterRequest(
 data class RegisterResponse(
     val user: AuthenticatedUserResponse,
     val session: AuthSessionResponse,
+)
+
+@Serializable
+data class RefreshRequest(
+    val refreshToken: String = "",
+)
+
+@Serializable
+data class RefreshResponse(
+    val session: AuthSessionResponse,
+)
+
+@Serializable
+data class LogoutRequest(
+    val refreshToken: String = "",
 )
 
 @Serializable
@@ -82,6 +98,17 @@ fun RegisterResult.toResponse(): RegisterResponse =
                 createdAt = user.createdAt,
                 updatedAt = user.updatedAt,
             ),
+        session =
+            AuthSessionResponse(
+                accessToken = session.accessToken,
+                refreshToken = session.refreshToken,
+                accessTokenExpiresAt = session.accessTokenExpiresAt,
+                refreshTokenExpiresAt = session.refreshTokenExpiresAt,
+            ),
+    )
+
+fun RefreshResult.toResponse(): RefreshResponse =
+    RefreshResponse(
         session =
             AuthSessionResponse(
                 accessToken = session.accessToken,

@@ -12,8 +12,8 @@ import jp.xhw.mikke.identity.v1.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.nio.channels.ClosedChannelException
-import java.time.Instant
 import java.util.concurrent.TimeoutException
+import kotlin.time.Instant
 
 class GrpcIdentityAuthGateway(
     private val channel: ManagedChannel,
@@ -35,6 +35,21 @@ class GrpcIdentityAuthGateway(
         } catch (e: Exception) {
             throw e.toApiHttpException()
         }
+
+    override suspend fun refresh(command: RefreshCommand): RefreshResult =
+        try {
+            stub.refreshSession(command.toRequestModel()).toRefreshResult()
+        } catch (e: Exception) {
+            throw e.toApiHttpException()
+        }
+
+    override suspend fun logout(command: LogoutCommand) {
+        try {
+            stub.logoutSession(command.toRequestModel())
+        } catch (e: Exception) {
+            throw e.toApiHttpException()
+        }
+    }
 
     override fun close() {
         channel.shutdown()
@@ -113,7 +128,30 @@ private fun RegisterUserResponse.toRegisterResult(): RegisterResult =
             ),
     )
 
-private fun Timestamp.toInstantString(): String = Instant.ofEpochSecond(seconds, nanos.toLong()).toString()
+private fun RefreshCommand.toRequestModel(): RefreshSessionRequest =
+    RefreshSessionRequest
+        .newBuilder()
+        .setRefreshToken(refreshToken)
+        .build()
+
+private fun RefreshSessionResponse.toRefreshResult(): RefreshResult =
+    RefreshResult(
+        session =
+            AuthSession(
+                accessToken = session.accessToken,
+                refreshToken = session.refreshToken,
+                accessTokenExpiresAt = session.accessTokenExpiresAt.toInstantString(),
+                refreshTokenExpiresAt = session.refreshTokenExpiresAt.toInstantString(),
+            ),
+    )
+
+private fun LogoutCommand.toRequestModel(): LogoutSessionRequest =
+    LogoutSessionRequest
+        .newBuilder()
+        .setRefreshToken(refreshToken)
+        .build()
+
+private fun Timestamp.toInstantString(): String = Instant.fromEpochSeconds(seconds, nanos.toLong()).toString()
 
 private fun UserStatus.toApiStatus(): String =
     when (this) {

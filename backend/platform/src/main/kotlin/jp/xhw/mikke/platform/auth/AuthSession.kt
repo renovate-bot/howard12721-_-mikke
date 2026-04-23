@@ -1,6 +1,6 @@
 package jp.xhw.mikke.platform.auth
 
-import java.time.Instant
+import kotlin.time.Instant
 
 data class IssuedToken(
     val value: String,

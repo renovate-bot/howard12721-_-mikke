@@ -1,25 +1,9 @@
 package jp.xhw.mikke.services.identity
 
 import io.grpc.Status
-import jp.xhw.mikke.identity.v1.GetMeRequest
-import jp.xhw.mikke.identity.v1.GetMeResponse
-import jp.xhw.mikke.identity.v1.IdentityServiceGrpcKt
-import jp.xhw.mikke.identity.v1.LoginUserRequest
-import jp.xhw.mikke.identity.v1.LoginUserResponse
-import jp.xhw.mikke.identity.v1.RefreshSessionRequest
-import jp.xhw.mikke.identity.v1.RefreshSessionResponse
-import jp.xhw.mikke.identity.v1.RegisterUserRequest
-import jp.xhw.mikke.identity.v1.RegisterUserResponse
+import jp.xhw.mikke.identity.v1.*
 import jp.xhw.mikke.platform.auth.grpc.GrpcAuthContext
-import jp.xhw.mikke.services.identity.application.DuplicateIdentityUserException
-import jp.xhw.mikke.services.identity.application.IdentityApplicationException
-import jp.xhw.mikke.services.identity.application.IdentityService
-import jp.xhw.mikke.services.identity.application.InvalidCredentialsException
-import jp.xhw.mikke.services.identity.application.InvalidIdentityInputException
-import jp.xhw.mikke.services.identity.application.InvalidRefreshTokenException
-import jp.xhw.mikke.services.identity.application.LoginIdentityUserCommand
-import jp.xhw.mikke.services.identity.application.RegisterIdentityUserCommand
-import jp.xhw.mikke.services.identity.application.UserNotFoundException
+import jp.xhw.mikke.services.identity.application.*
 
 class IdentityServiceRpc(
     private val identityService: IdentityService,
@@ -69,6 +53,12 @@ class IdentityServiceRpc(
             .newBuilder()
             .setSession(session.toProto())
             .build()
+    }
+
+    override suspend fun logoutSession(request: LogoutSessionRequest): LogoutSessionResponse {
+        execute { identityService.logout(request.refreshToken.requireField("refresh_token")) }
+
+        return LogoutSessionResponse.getDefaultInstance()
     }
 
     override suspend fun getMe(request: GetMeRequest): GetMeResponse {

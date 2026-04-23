@@ -76,6 +76,30 @@ class AuthApiService(
                 ),
         )
     }
+
+    suspend fun refresh(command: RefreshCommand): RefreshResult {
+        val refreshToken = command.refreshToken.trim()
+        if (refreshToken.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "refreshToken is required",
+            )
+        }
+
+        return identityAuthGateway.refresh(RefreshCommand(refreshToken = refreshToken))
+    }
+
+    suspend fun logout(command: LogoutCommand) {
+        val refreshToken = command.refreshToken.trim()
+        if (refreshToken.isEmpty()) {
+            throw ApiHttpException(
+                status = ApiErrorCode.InvalidRequest.status,
+                message = "refreshToken is required",
+            )
+        }
+
+        identityAuthGateway.logout(LogoutCommand(refreshToken = refreshToken))
+    }
 }
 
 data class LoginCommand(
@@ -98,6 +122,18 @@ data class RegisterCommand(
 data class RegisterResult(
     val user: AuthenticatedUser,
     val session: AuthSession,
+)
+
+data class RefreshCommand(
+    val refreshToken: String,
+)
+
+data class RefreshResult(
+    val session: AuthSession,
+)
+
+data class LogoutCommand(
+    val refreshToken: String,
 )
 
 data class AuthenticatedUser(

@@ -8,6 +8,9 @@ import jp.xhw.mikke.api.apiModule
 import jp.xhw.mikke.api.auth.application.AuthApiService
 import jp.xhw.mikke.api.auth.application.IdentityAuthGateway
 import jp.xhw.mikke.api.auth.application.LoginCommand
+import jp.xhw.mikke.api.auth.application.LogoutCommand
+import jp.xhw.mikke.api.auth.application.RefreshCommand
+import jp.xhw.mikke.api.auth.application.RefreshResult
 import jp.xhw.mikke.api.auth.application.RegisterCommand
 import jp.xhw.mikke.api.bootstrap.ApiDependencies
 import jp.xhw.mikke.platform.health.HealthResponse
@@ -32,6 +35,10 @@ class ApiHealthRoutesTest {
                                             override suspend fun login(command: LoginCommand) = error("not used")
 
                                             override suspend fun register(command: RegisterCommand) = error("not used")
+
+                                            override suspend fun refresh(command: RefreshCommand): RefreshResult = error("not used")
+
+                                            override suspend fun logout(command: LogoutCommand) = error("not used")
                                         },
                                 ),
                         ),

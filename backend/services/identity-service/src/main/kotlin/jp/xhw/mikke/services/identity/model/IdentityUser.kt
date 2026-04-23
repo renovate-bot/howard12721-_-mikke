@@ -1,6 +1,6 @@
 package jp.xhw.mikke.services.identity.model
 
-import java.time.Instant
+import kotlin.time.Instant
 
 data class IdentityUser(
     val id: UserId,

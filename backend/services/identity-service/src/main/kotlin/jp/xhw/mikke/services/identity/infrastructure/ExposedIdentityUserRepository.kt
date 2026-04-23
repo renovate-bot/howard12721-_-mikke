@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class ExposedIdentityUserRepository : IdentityUserRepository {
@@ -24,8 +25,8 @@ class ExposedIdentityUserRepository : IdentityUserRepository {
                 row[passwordHashIterations] = user.passwordHash.iterations
                 row[passwordHash] = user.passwordHash.hash
                 row[passwordSalt] = user.passwordHash.salt
-                row[createdAt] = user.createdAt
-                row[updatedAt] = user.updatedAt
+                row[createdAt] = user.createdAt.toJavaInstant()
+                row[updatedAt] = user.updatedAt.toJavaInstant()
             }
         } catch (e: ExposedSQLException) {
             if (e.isUniqueConstraintViolation()) {
@@ -111,10 +112,14 @@ private fun ResultRow.toIdentityUser(): IdentityUser =
                 hash = this[IdentityUsersTable.passwordHash],
                 salt = this[IdentityUsersTable.passwordSalt],
             ),
-        createdAt = this[IdentityUsersTable.createdAt],
-        updatedAt = this[IdentityUsersTable.updatedAt],
+        createdAt = this[IdentityUsersTable.createdAt].toKotlinInstant(),
+        updatedAt = this[IdentityUsersTable.updatedAt].toKotlinInstant(),
     )
 
 private fun String.normalizeEmail(): String = trim().lowercase()
 
 private fun String.normalizeUsername(): String = trim().lowercase()
+
+private fun Instant.toJavaInstant(): java.time.Instant = java.time.Instant.ofEpochSecond(epochSeconds, nanosecondsOfSecond.toLong())
+
+private fun java.time.Instant.toKotlinInstant(): Instant = Instant.fromEpochSeconds(epochSecond, nano)

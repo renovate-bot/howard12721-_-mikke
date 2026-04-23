@@ -7,6 +7,7 @@ import io.ktor.server.testing.*
 import jp.xhw.mikke.api.apiModule
 import jp.xhw.mikke.api.auth.application.*
 import jp.xhw.mikke.api.auth.presentation.LoginResponse
+import jp.xhw.mikke.api.auth.presentation.RefreshResponse
 import jp.xhw.mikke.api.auth.presentation.RegisterResponse
 import jp.xhw.mikke.api.bootstrap.ApiDependencies
 import jp.xhw.mikke.api.http.ApiErrorResponse
@@ -184,10 +185,94 @@ class AuthRoutesTest {
             }
     }
 
+    @Nested
+    inner class Refresh {
+        @Test
+        fun `returns rotated session from identity client`() =
+            testApplicationWithAuthGateway(
+                RecordingIdentityAuthGateway(
+                    onRefresh = { command ->
+                        capturedRefreshCommand = command
+                        sampleRefreshResult()
+                    },
+                ),
+            ) {
+                val response = refresh("""{"refreshToken":" refresh-token "}""")
+
+                assertEquals(HttpStatusCode.OK, response.status)
+                assertEquals(
+                    RefreshCommand(refreshToken = "refresh-token"),
+                    capturedRefreshCommand,
+                )
+
+                val body = json.decodeFromString<RefreshResponse>(response.bodyAsText())
+                assertEquals("access-token", body.session.accessToken)
+                assertEquals("refresh-token", body.session.refreshToken)
+            }
+
+        @Test
+        fun `rejects blank refresh token before calling identity client`() =
+            testApplicationWithAuthGateway(
+                RecordingIdentityAuthGateway(
+                    onRefresh = {
+                        refreshCalled = true
+                        error("should not be called")
+                    },
+                ),
+            ) {
+                val response = refresh("""{"refreshToken":"   "}""")
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                assertFalse(refreshCalled)
+                assertTrue(response.bodyAsText().contains("refreshToken is required"))
+            }
+    }
+
+    @Nested
+    inner class Logout {
+        @Test
+        fun `returns no content when logout succeeds`() =
+            testApplicationWithAuthGateway(
+                RecordingIdentityAuthGateway(
+                    onLogout = { command ->
+                        capturedLogoutCommand = command
+                    },
+                ),
+            ) {
+                val response = logout("""{"refreshToken":" refresh-token "}""")
+
+                assertEquals(HttpStatusCode.NoContent, response.status)
+                assertEquals(
+                    LogoutCommand(refreshToken = "refresh-token"),
+                    capturedLogoutCommand,
+                )
+            }
+
+        @Test
+        fun `rejects blank refresh token before logout`() =
+            testApplicationWithAuthGateway(
+                RecordingIdentityAuthGateway(
+                    onLogout = {
+                        logoutCalled = true
+                    },
+                ),
+            ) {
+                val response = logout("""{"refreshToken":" "}""")
+
+                assertEquals(HttpStatusCode.BadRequest, response.status)
+                assertFalse(logoutCalled)
+                assertTrue(response.bodyAsText().contains("refreshToken is required"))
+            }
+    }
+
     private var capturedLoginCommand: LoginCommand? = null
     private var capturedRegisterCommand: RegisterCommand? = null
+    private var capturedRefreshCommand: RefreshCommand? = null
+    private var capturedLogoutCommand: LogoutCommand? = null
     private var loginCalled: Boolean = false
     private var registerCalled: Boolean = false
+    private var refreshCalled: Boolean = false
+    private var logoutCalled: Boolean = false
 
     private fun testApplicationWithAuthGateway(
         identityAuthGateway: IdentityAuthGateway,
@@ -210,8 +295,12 @@ class AuthRoutesTest {
     private fun resetCaptures() {
         capturedLoginCommand = null
         capturedRegisterCommand = null
+        capturedRefreshCommand = null
+        capturedLogoutCommand = null
         loginCalled = false
         registerCalled = false
+        refreshCalled = false
+        logoutCalled = false
     }
 
     private suspend fun ApplicationTestBuilder.login(body: String): HttpResponse =
@@ -226,6 +315,18 @@ class AuthRoutesTest {
             setBody(body)
         }
 
+    private suspend fun ApplicationTestBuilder.refresh(body: String): HttpResponse =
+        client.post("/api/v1/auth/refresh") {
+            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            setBody(body)
+        }
+
+    private suspend fun ApplicationTestBuilder.logout(body: String): HttpResponse =
+        client.post("/api/v1/auth/logout") {
+            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            setBody(body)
+        }
+
     private fun sampleLoginResult(): LoginResult =
         LoginResult(
             user = sampleUser(),
@@ -235,6 +336,11 @@ class AuthRoutesTest {
     private fun sampleRegisterResult(): RegisterResult =
         RegisterResult(
             user = sampleUser(),
+            session = sampleSession(),
+        )
+
+    private fun sampleRefreshResult(): RefreshResult =
+        RefreshResult(
             session = sampleSession(),
         )
 
@@ -261,8 +367,16 @@ class AuthRoutesTest {
 private class RecordingIdentityAuthGateway(
     private val onLogin: suspend (LoginCommand) -> LoginResult = { error("Not implemented") },
     private val onRegister: suspend (RegisterCommand) -> RegisterResult = { error("Not implemented") },
+    private val onRefresh: suspend (RefreshCommand) -> RefreshResult = { error("Not implemented") },
+    private val onLogout: suspend (LogoutCommand) -> Unit = { error("Not implemented") },
 ) : IdentityAuthGateway {
     override suspend fun login(command: LoginCommand): LoginResult = onLogin(command)
 
     override suspend fun register(command: RegisterCommand): RegisterResult = onRegister(command)
+
+    override suspend fun refresh(command: RefreshCommand): RefreshResult = onRefresh(command)
+
+    override suspend fun logout(command: LogoutCommand) {
+        onLogout(command)
+    }
 }

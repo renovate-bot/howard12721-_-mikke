@@ -18,6 +18,9 @@ service IdentityService {
   // Exchanges a refresh token for a new session.
   rpc RefreshSession(RefreshSessionRequest) returns (RefreshSessionResponse);
 
+  // Revokes the current refresh session.
+  rpc LogoutSession(LogoutSessionRequest) returns (LogoutSessionResponse);
+
   // Returns the current authenticated user.
   // The caller is identified from auth context (e.g. JWT sub), not from request fields.
   rpc GetMe(GetMeRequest) returns (GetMeResponse);
@@ -53,6 +56,12 @@ message RefreshSessionRequest {
 message RefreshSessionResponse {
   AuthSession session = 1;
 }
+
+message LogoutSessionRequest {
+  string refresh_token = 1;
+}
+
+message LogoutSessionResponse {}
 
 message GetMeRequest {}
 

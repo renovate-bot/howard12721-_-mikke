@@ -40,6 +40,7 @@ subprojects {
             jvmToolchain(21)
             compilerOptions {
                 optIn.add("kotlin.uuid.ExperimentalUuidApi")
+                optIn.add("kotlin.time.ExperimentalTime")
             }
         }
     }

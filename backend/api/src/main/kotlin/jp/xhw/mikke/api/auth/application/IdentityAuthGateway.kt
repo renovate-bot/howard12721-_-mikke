@@ -5,5 +5,9 @@ interface IdentityAuthGateway : AutoCloseable {
 
     suspend fun register(command: RegisterCommand): RegisterResult
 
+    suspend fun refresh(command: RefreshCommand): RefreshResult
+
+    suspend fun logout(command: LogoutCommand)
+
     override fun close() {}
 }

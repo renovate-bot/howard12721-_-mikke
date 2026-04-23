@@ -6,7 +6,7 @@ import jp.xhw.mikke.identity.v1.User
 import jp.xhw.mikke.identity.v1.UserStatus
 import jp.xhw.mikke.platform.auth.IssuedAuthSession
 import jp.xhw.mikke.services.identity.model.IdentityUser
-import java.time.Instant
+import kotlin.time.Instant
 
 fun IdentityUser.toProto(): User =
     User
@@ -32,6 +32,6 @@ fun IssuedAuthSession.toProto(): AuthSession =
 private fun Instant.toProtoTimestamp(): Timestamp =
     Timestamp
         .newBuilder()
-        .setSeconds(epochSecond)
-        .setNanos(nano)
+        .setSeconds(epochSeconds)
+        .setNanos(nanosecondsOfSecond)
         .build()
