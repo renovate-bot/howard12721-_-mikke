@@ -29,12 +29,14 @@ spec:
       labels:
         app.kubernetes.io/name: mariadb
     spec:
-      securityContext:
-        fsGroup: 999
-        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: mariadb
           image: mariadb:12.2.2-noble
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 3306
               name: mysql
@@ -116,9 +118,18 @@ spec:
       labels:
         app.kubernetes.io/name: redis
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: redis
           image: redis:8.6.2-alpine3.23
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           args:
             - redis-server
             - --appendonly
