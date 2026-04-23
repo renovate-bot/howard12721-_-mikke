@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
+import java.time.Instant as JavaInstant
 
 class ExposedRefreshSessionRepository : RefreshSessionRepository {
     override fun save(session: RefreshSession) {
@@ -83,6 +84,6 @@ private fun ResultRow.toRefreshSession(): RefreshSession =
         createdAt = this[IdentityRefreshSessionsTable.createdAt].toKotlinInstant(),
     )
 
-private fun Instant.toJavaInstant(): java.time.Instant = java.time.Instant.ofEpochSecond(epochSeconds, nanosecondsOfSecond.toLong())
+private fun Instant.toJavaInstant(): JavaInstant = JavaInstant.ofEpochSecond(epochSeconds, nanosecondsOfSecond.toLong())
 
-private fun java.time.Instant.toKotlinInstant(): Instant = Instant.fromEpochSeconds(epochSecond, nano)
+private fun JavaInstant.toKotlinInstant(): Instant = Instant.fromEpochSeconds(epochSecond, nano)
