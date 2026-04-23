@@ -27,7 +27,7 @@ spec:
         - "-c"
         - until nc -z redis 6379; do sleep 2; done
       - name: migrate-db
-        image: ghcr.io/howard12721/mikke-migrations:sha-6d3a19f6bf5f58da15c332d0686ff5ace3d2ae80
+        image: ghcr.io/howard12721/mikke-migrations:sha-9122e0e6f398546ec07d133fa50b632433c9d577
         env:
         - name: MIGRATION_SERVICE
           value: guess-service
@@ -47,7 +47,7 @@ spec:
               key: password
       containers:
       - name: guess-service
-        image: ghcr.io/howard12721/mikke-guess-service:sha-6d3a19f6bf5f58da15c332d0686ff5ace3d2ae80
+        image: ghcr.io/howard12721/mikke-guess-service:sha-9122e0e6f398546ec07d133fa50b632433c9d577
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 50055
