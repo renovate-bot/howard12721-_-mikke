@@ -36,6 +36,29 @@ services:
       timeout: 5s
       retries: 10
 
+  garage:
+    image: dxflrs/garage:v2.3.0
+    container_name: mikke-garage
+    command: [ "/garage", "server", "--single-node", "--default-bucket" ]
+    environment:
+      GARAGE_DEFAULT_ACCESS_KEY: mikke-dev-garage-access-key
+      GARAGE_DEFAULT_SECRET_KEY: mikke-dev-garage-secret-key
+      GARAGE_DEFAULT_BUCKET: mikke-media
+    ports:
+      - "127.0.0.1:3900:3900"
+      - "127.0.0.1:3901:3901"
+      - "127.0.0.1:3902:3902"
+      - "127.0.0.1:3903:3903"
+    volumes:
+      - ./garage.toml:/etc/garage.toml:ro
+      - garage-data:/var/lib/garage
+    healthcheck:
+      test: [ "CMD", "/garage", "--version" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   api:
     build:
       context: ../../backend
@@ -163,12 +186,20 @@ services:
       MARIADB_PASSWORD: mikke
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      OBJECT_STORAGE_ENDPOINT: http://garage:3900
+      OBJECT_STORAGE_REGION: garage
+      OBJECT_STORAGE_BUCKET: mikke-media
+      OBJECT_STORAGE_ACCESS_KEY_ID: mikke-dev-garage-access-key
+      OBJECT_STORAGE_SECRET_ACCESS_KEY: mikke-dev-garage-secret-key
+      OBJECT_STORAGE_FORCE_PATH_STYLE: "true"
     ports:
       - "50054:50054"
     depends_on:
       mariadb:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      garage:
         condition: service_healthy
 
   guess-service:
@@ -309,3 +340,4 @@ services:
 
 volumes:
   mariadb-data:
+  garage-data:

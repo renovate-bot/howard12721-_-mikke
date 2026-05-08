@@ -12,6 +12,9 @@ configMapGenerator:
   - name: mariadb-initdb
     files:
       - 01-create-databases.sql=database/initdb/01-create-databases.sql
+  - name: garage-config
+    files:
+      - garage.toml=garage/garage.toml
 
 resources:
   - namespace.yaml

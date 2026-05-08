@@ -63,6 +63,24 @@ spec:
           value: redis
         - name: REDIS_PORT
           value: '6379'
+        - name: OBJECT_STORAGE_ENDPOINT
+          value: http://garage:3900
+        - name: OBJECT_STORAGE_REGION
+          value: garage
+        - name: OBJECT_STORAGE_BUCKET
+          value: mikke-media
+        - name: OBJECT_STORAGE_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: garage-auth
+              key: access-key-id
+        - name: OBJECT_STORAGE_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: garage-auth
+              key: secret-access-key
+        - name: OBJECT_STORAGE_FORCE_PATH_STYLE
+          value: 'true'
         readinessProbe:
           grpc:
             port: 50054
