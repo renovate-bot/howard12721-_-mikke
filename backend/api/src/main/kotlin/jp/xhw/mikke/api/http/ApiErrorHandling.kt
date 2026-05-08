@@ -38,7 +38,9 @@ data class ApiErrorResponse(
 class ApiHttpException(
     val status: HttpStatusCode,
     override val message: String,
-) : RuntimeException(message)
+) : RuntimeException(message) {
+    val errorCode: ApiErrorCode = ApiErrorCode.fromStatus(status)
+}
 
 enum class ApiErrorCode(
     val status: HttpStatusCode,
@@ -51,4 +53,10 @@ enum class ApiErrorCode(
     UpstreamTimeout(HttpStatusCode.GatewayTimeout),
     UpstreamFailure(HttpStatusCode.BadGateway),
     InternalError(HttpStatusCode.InternalServerError),
+    ;
+
+    companion object {
+        fun fromStatus(status: HttpStatusCode): ApiErrorCode =
+            entries.firstOrNull { it.status == status } ?: InternalError
+    }
 }

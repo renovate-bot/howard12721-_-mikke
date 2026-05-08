@@ -1,13 +1,12 @@
 package jp.xhw.mikke.api
 
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.plugins.contentnegotiation.*
 import jp.xhw.mikke.api.bootstrap.ApiDependencies
+import jp.xhw.mikke.api.graphql.configureApiGraphQl
 import jp.xhw.mikke.api.http.configureApiErrorHandling
 import jp.xhw.mikke.api.http.configureApiRouting
 
@@ -24,11 +23,9 @@ fun Application.apiModule() {
 
 fun Application.apiModule(dependencies: ApiDependencies) {
     install(CallLogging)
-    install(ContentNegotiation) {
-        json()
-    }
+    configureApiGraphQl(dependencies)
     configureApiErrorHandling()
-    configureApiRouting(dependencies)
+    configureApiRouting()
     monitor.subscribe(ApplicationStopped) {
         dependencies.close()
     }

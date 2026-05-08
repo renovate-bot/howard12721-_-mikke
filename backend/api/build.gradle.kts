@@ -8,12 +8,26 @@ application {
     mainClass = "jp.xhw.mikke.api.ApiApplicationKt"
 }
 
+val graphQlSchemaFile = layout.projectDirectory.file("src/main/graphql/schema.graphqls")
+
+tasks.register<JavaExec>("generateGraphQlSchema") {
+    group = "graphql"
+    description = "Generates the GraphQL schema SDL."
+
+    dependsOn(tasks.named("classes"))
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "jp.xhw.mikke.api.graphql.GenerateGraphQlSchemaKt"
+    args(graphQlSchemaFile.asFile.absolutePath)
+    outputs.file(graphQlSchemaFile)
+}
+
 dependencies {
     implementation(project(":platform"))
     implementation(project(":services:identity-service"))
 
     implementation(libs.bundles.ktor.server)
     implementation(libs.graphql.kotlin.ktor.server)
+    implementation(libs.graphql.kotlin.schema.generator)
     implementation(libs.bundles.grpc.client)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
