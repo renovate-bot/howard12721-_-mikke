@@ -56,7 +56,6 @@ enum class ApiErrorCode(
     ;
 
     companion object {
-        fun fromStatus(status: HttpStatusCode): ApiErrorCode =
-            entries.firstOrNull { it.status == status } ?: InternalError
+        fun fromStatus(status: HttpStatusCode): ApiErrorCode = entries.firstOrNull { it.status == status } ?: InternalError
     }
 }
