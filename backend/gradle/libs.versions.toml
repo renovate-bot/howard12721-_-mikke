@@ -14,7 +14,7 @@ mariadb = "3.5.8"
 exposed = "1.2.0"
 logback = "1.5.32"
 kotlin-logging = "8.0.02"
-opentelemetry = "1.61.0"
+opentelemetry = "1.62.0"
 junit = "6.0.3"
 ktlint-plugin = "14.2.0"
 
