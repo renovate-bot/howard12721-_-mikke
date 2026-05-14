@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.23
-FROM eclipse-temurin:25.0.2_10-jdk-jammy AS builder
+FROM eclipse-temurin:25.0.3_9-jdk-jammy AS builder
 
 WORKDIR /workspace
 ENV GRADLE_USER_HOME=/gradle-cache
@@ -18,7 +18,7 @@ RUN --mount=type=cache,id=mikke-backend-gradle-wrapper,target=/gradle-cache/wrap
     --mount=type=cache,id=mikke-backend-gradle-caches,target=/gradle-cache/caches \
     ./gradlew :services:guess-service:installDist --no-daemon
 
-FROM eclipse-temurin:25.0.2_10-jre-jammy AS runtime
+FROM eclipse-temurin:25.0.3_9-jre-jammy AS runtime
 
 WORKDIR /opt/app
 
