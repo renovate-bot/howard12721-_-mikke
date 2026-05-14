@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.23
+# syntax=docker/dockerfile:1.24
 FROM flyway/flyway:12.6.1
 
 COPY base/database/migrations /flyway/migrations
