@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.3.21"
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 ktor = "3.4.3"
 graphql-kotlin = "9.2.0"
@@ -13,8 +13,8 @@ hikari = "7.0.2"
 mariadb = "3.5.8"
 exposed = "1.2.0"
 logback = "1.5.32"
-kotlin-logging = "8.0.01"
-opentelemetry = "1.61.0"
+kotlin-logging = "8.0.02"
+opentelemetry = "1.62.0"
 junit = "6.0.3"
 ktlint-plugin = "14.2.0"
 
