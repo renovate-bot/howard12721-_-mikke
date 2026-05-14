@@ -10,23 +10,23 @@ generators:
 
 images:
   - name: ghcr.io/howard12721/mikke-api
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-migrations
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-identity-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-friendship-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-post-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-media-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-guess-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-feed-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
   - name: ghcr.io/howard12721/mikke-notification-service
-    newTag: dev
+    newTag: sha-0f624a3b9b899d69e79362c00102818d853db92a
 
 replicas:
   - name: api
