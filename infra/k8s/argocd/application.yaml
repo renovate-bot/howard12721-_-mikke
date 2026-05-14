@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/howard12721/mikke.git
-    targetRevision: main
+    targetRevision: deploy/k8s
     path: infra/k8s/overlays/home
     plugin:
       name: ksops-v1.0
