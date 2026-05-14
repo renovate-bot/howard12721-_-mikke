@@ -65,6 +65,8 @@ spec:
           value: '6379'
         - name: OBJECT_STORAGE_ENDPOINT
           value: http://garage:3900
+        - name: OBJECT_STORAGE_PUBLIC_ENDPOINT
+          value: https://media.mikke.pics
         - name: OBJECT_STORAGE_REGION
           value: garage
         - name: OBJECT_STORAGE_BUCKET

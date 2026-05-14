@@ -187,6 +187,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       OBJECT_STORAGE_ENDPOINT: http://garage:3900
+      OBJECT_STORAGE_PUBLIC_ENDPOINT: http://localhost:3900
       OBJECT_STORAGE_REGION: garage
       OBJECT_STORAGE_BUCKET: mikke-media
       OBJECT_STORAGE_ACCESS_KEY_ID: mikke-dev-garage-access-key
