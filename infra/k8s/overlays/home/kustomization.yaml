@@ -23,8 +23,6 @@ images:
     newTag: dev
   - name: ghcr.io/howard12721/mikke-guess-service
     newTag: dev
-  - name: ghcr.io/howard12721/mikke-feed-service
-    newTag: dev
   - name: ghcr.io/howard12721/mikke-notification-service
     newTag: dev
 
@@ -40,8 +38,6 @@ replicas:
   - name: media-service
     count: 2
   - name: guess-service
-    count: 2
-  - name: feed-service
     count: 2
   - name: notification-service
     count: 2
