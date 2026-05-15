@@ -20,7 +20,7 @@ service MediaService {
   // Returns media metadata and fixed delivery URLs for multiple media IDs.
   rpc BatchGetMedia(BatchGetMediaRequest) returns (BatchGetMediaResponse);
 
-  // Resolves media delivery metadata for an authenticated image request.
+  // Resolves media delivery metadata.
   rpc GetMediaForDelivery(GetMediaForDeliveryRequest) returns (GetMediaForDeliveryResponse);
 
   // Soft deletes media.
@@ -73,8 +73,9 @@ message BatchGetMediaResponse {
 }
 
 message GetMediaForDeliveryRequest {
-  string media_id = 1;
-  MediaVariant variant = 2;
+  // Opaque bearer key embedded in the fixed delivery URL.
+  // The delivery endpoint does not perform user/post/friendship authorization.
+  string delivery_key = 1;
 }
 
 message GetMediaForDeliveryResponse {
