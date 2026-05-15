@@ -42,18 +42,6 @@ CREATE TABLE media_variants (
         ON DELETE CASCADE
 );
 
-CREATE TABLE media_delivery_audit (
-    id BINARY(16) NOT NULL,
-    media_id BINARY(16) NOT NULL,
-    variant VARCHAR(32) NOT NULL,
-    requester_user_id BINARY(16) NULL,
-    result VARCHAR(32) NOT NULL,
-    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    PRIMARY KEY (id),
-    KEY idx_media_delivery_audit_media_created (media_id, created_at),
-    KEY idx_media_delivery_audit_requester_created (requester_user_id, created_at)
-);
-
 CREATE TABLE media_outbox (
     id BINARY(16) NOT NULL,
     event_type VARCHAR(128) NOT NULL,
