@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package mikke.notification.v1;
+
+import "common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "jp.xhw.mikke.notification.v1";
+
+service NotificationService {
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse);
+  rpc GetNotification(GetNotificationRequest) returns (GetNotificationResponse);
+  rpc MarkNotificationRead(MarkNotificationReadRequest) returns (MarkNotificationReadResponse);
+  rpc MarkAllNotificationsRead(MarkAllNotificationsReadRequest) returns (MarkAllNotificationsReadResponse);
+  rpc GetUnreadNotificationCount(GetUnreadNotificationCountRequest) returns (GetUnreadNotificationCountResponse);
+  rpc GetNotificationPreferences(GetNotificationPreferencesRequest) returns (GetNotificationPreferencesResponse);
+  rpc UpdateNotificationPreferences(UpdateNotificationPreferencesRequest) returns (UpdateNotificationPreferencesResponse);
+  rpc RegisterPushToken(RegisterPushTokenRequest) returns (RegisterPushTokenResponse);
+  rpc DeletePushToken(DeletePushTokenRequest) returns (DeletePushTokenResponse);
+}
+
+message ListNotificationsRequest {
+  mikke.common.v1.PageRequest page = 1;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message GetNotificationRequest {
+  string notification_id = 1;
+}
+
+message GetNotificationResponse {
+  Notification notification = 1;
+}
+
+message MarkNotificationReadRequest {
+  string notification_id = 1;
+}
+
+message MarkNotificationReadResponse {
+  Notification notification = 1;
+}
+
+message MarkAllNotificationsReadRequest {
+  google.protobuf.Timestamp read_until = 1;
+}
+
+message MarkAllNotificationsReadResponse {}
+
+message GetUnreadNotificationCountRequest {}
+
+message GetUnreadNotificationCountResponse {
+  int64 unread_count = 1;
+}
+
+message GetNotificationPreferencesRequest {}
+
+message GetNotificationPreferencesResponse {
+  NotificationPreferences preferences = 1;
+}
+
+message UpdateNotificationPreferencesRequest {
+  bool post_created_enabled = 1;
+  bool friend_request_enabled = 2;
+  bool friend_accepted_enabled = 3;
+  bool guess_submitted_enabled = 4;
+}
+
+message UpdateNotificationPreferencesResponse {
+  NotificationPreferences preferences = 1;
+}
+
+message RegisterPushTokenRequest {
+  string device_id = 1;
+  PushPlatform platform = 2;
+  string token = 3;
+}
+
+message RegisterPushTokenResponse {
+  PushToken push_token = 1;
+}
+
+message DeletePushTokenRequest {
+  string push_token_id = 1;
+}
+
+message DeletePushTokenResponse {}
+
+message Notification {
+  string id = 1;
+  string recipient_user_id = 2;
+  NotificationType type = 3;
+  string title = 4;
+  string body = 5;
+  string related_post_id = 6;
+  string related_user_id = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp read_at = 9;
+}
+
+message NotificationPreferences {
+  string user_id = 1;
+  bool post_created_enabled = 2;
+  bool friend_request_enabled = 3;
+  bool friend_accepted_enabled = 4;
+  bool guess_submitted_enabled = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message PushToken {
+  string id = 1;
+  string user_id = 2;
+  string device_id = 3;
+  PushPlatform platform = 4;
+  bool enabled = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp last_seen_at = 7;
+}
+
+enum NotificationType {
+  NOTIFICATION_TYPE_UNSPECIFIED = 0;
+  NOTIFICATION_TYPE_POST_CREATED = 1;
+  NOTIFICATION_TYPE_FRIEND_REQUEST_RECEIVED = 2;
+  NOTIFICATION_TYPE_FRIEND_REQUEST_ACCEPTED = 3;
+  NOTIFICATION_TYPE_GUESS_SUBMITTED = 4;
+}
+
+enum PushPlatform {
+  PUSH_PLATFORM_UNSPECIFIED = 0;
+  PUSH_PLATFORM_IOS = 1;
+  PUSH_PLATFORM_ANDROID = 2;
+}

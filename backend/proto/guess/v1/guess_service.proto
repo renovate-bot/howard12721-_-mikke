@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package mikke.guess.v1;
+
+import "common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "jp.xhw.mikke.guess.v1";
+
+service GuessService {
+  rpc SubmitGuess(SubmitGuessRequest) returns (SubmitGuessResponse);
+  rpc GetGuess(GetGuessRequest) returns (GetGuessResponse);
+  rpc GetMyGuessForPost(GetMyGuessForPostRequest) returns (GetMyGuessForPostResponse);
+  rpc BatchGetMyGuessesForPosts(BatchGetMyGuessesForPostsRequest) returns (BatchGetMyGuessesForPostsResponse);
+  rpc ListGuessesForPost(ListGuessesForPostRequest) returns (ListGuessesForPostResponse);
+  rpc ListMyGuesses(ListMyGuessesRequest) returns (ListMyGuessesResponse);
+  rpc GetPostGuessStats(GetPostGuessStatsRequest) returns (GetPostGuessStatsResponse);
+  rpc GetUserScoreSummary(GetUserScoreSummaryRequest) returns (GetUserScoreSummaryResponse);
+  rpc ListPostRankings(ListPostRankingsRequest) returns (ListPostRankingsResponse);
+  rpc ListGuessRankings(ListGuessRankingsRequest) returns (ListGuessRankingsResponse);
+}
+
+message SubmitGuessRequest {
+  string post_id = 1;
+  mikke.common.v1.GeoPoint guessed_point = 2;
+}
+
+message SubmitGuessResponse {
+  GuessResult result = 1;
+}
+
+message GetGuessRequest {
+  string guess_id = 1;
+}
+
+message GetGuessResponse {
+  Guess guess = 1;
+}
+
+message GetMyGuessForPostRequest {
+  string post_id = 1;
+}
+
+message GetMyGuessForPostResponse {
+  Guess guess = 1;
+}
+
+message BatchGetMyGuessesForPostsRequest {
+  repeated string post_ids = 1;
+}
+
+message BatchGetMyGuessesForPostsResponse {
+  repeated Guess guesses = 1;
+}
+
+message ListGuessesForPostRequest {
+  string post_id = 1;
+  mikke.common.v1.PageRequest page = 2;
+}
+
+message ListGuessesForPostResponse {
+  repeated Guess guesses = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message ListMyGuessesRequest {
+  mikke.common.v1.PageRequest page = 1;
+}
+
+message ListMyGuessesResponse {
+  repeated Guess guesses = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message GetPostGuessStatsRequest {
+  string post_id = 1;
+}
+
+message GetPostGuessStatsResponse {
+  PostGuessStats stats = 1;
+}
+
+message GetUserScoreSummaryRequest {
+  string user_id = 1;
+}
+
+message GetUserScoreSummaryResponse {
+  UserScoreSummary summary = 1;
+}
+
+message ListPostRankingsRequest {
+  reserved 1;
+
+  mikke.common.v1.PageRequest page = 2;
+}
+
+message ListPostRankingsResponse {
+  repeated PostUserRankingEntry entries = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message ListGuessRankingsRequest {
+  reserved 1;
+
+  GuessRankingMetric metric = 2;
+  mikke.common.v1.PageRequest page = 3;
+}
+
+message ListGuessRankingsResponse {
+  repeated GuessUserRankingEntry entries = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message Guess {
+  string id = 1;
+  string post_id = 2;
+  string post_author_user_id = 3;
+  string user_id = 4;
+  mikke.common.v1.GeoPoint guessed_point = 5;
+  double distance_meters = 6;
+  int32 score = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message GuessResult {
+  Guess guess = 1;
+  mikke.common.v1.GeoPoint correct_point = 2;
+  double distance_meters = 3;
+  int32 score = 4;
+}
+
+message PostGuessStats {
+  string post_id = 1;
+  int64 guess_count = 2;
+  double average_distance_meters = 3;
+  double best_distance_meters = 4;
+  double average_score = 5;
+}
+
+message UserScoreSummary {
+  string user_id = 1;
+  int64 total_score = 2;
+  double average_score = 3;
+  int64 guess_count = 4;
+  double best_distance_meters = 5;
+}
+
+message PostUserRankingEntry {
+  string user_id = 1;
+  int64 rank = 2;
+  int64 post_count = 3;
+}
+
+message GuessUserRankingEntry {
+  string user_id = 1;
+  int64 rank = 2;
+  int64 total_score = 3;
+  double average_score = 4;
+  int64 guess_count = 5;
+  double best_distance_meters = 6;
+}
+
+enum GuessRankingMetric {
+  GUESS_RANKING_METRIC_UNSPECIFIED = 0;
+  GUESS_RANKING_METRIC_GUESS_COUNT = 1;
+  GUESS_RANKING_METRIC_TOTAL_SCORE = 2;
+  GUESS_RANKING_METRIC_AVERAGE_SCORE = 3;
+}

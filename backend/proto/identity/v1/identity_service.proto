@@ -3,6 +3,7 @@ syntax = "proto3";
 package mikke.identity.v1;
 
 import "google/protobuf/timestamp.proto";
+import "common/v1/common.proto";
 
 option java_multiple_files = true;
 option java_package = "jp.xhw.mikke.identity.v1";
@@ -24,6 +25,21 @@ service IdentityService {
   // Returns the current authenticated user.
   // The caller is identified from auth context (e.g. JWT sub), not from request fields.
   rpc GetMe(GetMeRequest) returns (GetMeResponse);
+
+  // Returns a public user profile by id.
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // Returns public user profiles by id.
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+
+  // Searches users by username.
+  rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse);
+
+  // Updates the current user's profile.
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+
+  // Deactivates the current authenticated user.
+  rpc DeactivateAccount(DeactivateAccountRequest) returns (DeactivateAccountResponse);
 }
 
 message RegisterUserRequest {
@@ -69,6 +85,46 @@ message GetMeResponse {
   User user = 1;
 }
 
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  PublicUser user = 1;
+}
+
+message BatchGetUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message BatchGetUsersResponse {
+  repeated PublicUser users = 1;
+}
+
+message SearchUsersRequest {
+  string query = 1;
+  mikke.common.v1.PageRequest page = 2;
+}
+
+message SearchUsersResponse {
+  repeated PublicUser users = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message UpdateProfileRequest {
+  string username = 1;
+  string display_name = 2;
+  string avatar_media_id = 3;
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+}
+
+message DeactivateAccountRequest {}
+
+message DeactivateAccountResponse {}
+
 message User {
   string id = 1;
   string email = 2;
@@ -77,6 +133,15 @@ message User {
   UserStatus status = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
+  string avatar_media_id = 8;
+}
+
+message PublicUser {
+  string id = 1;
+  string username = 2;
+  string display_name = 3;
+  UserStatus status = 4;
+  string avatar_media_id = 5;
 }
 
 message AuthSession {

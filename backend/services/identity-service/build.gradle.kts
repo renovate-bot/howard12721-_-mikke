@@ -13,6 +13,7 @@ sourceSets {
     main {
         proto {
             srcDir(rootProject.file("proto"))
+            include("common/v1/*.proto")
             include("identity/v1/*.proto")
         }
     }

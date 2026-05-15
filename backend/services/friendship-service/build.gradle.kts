@@ -9,6 +9,16 @@ application {
     mainClass = "jp.xhw.mikke.services.friendship.FriendshipServiceApplicationKt"
 }
 
+sourceSets {
+    main {
+        proto {
+            srcDir(rootProject.file("proto"))
+            include("common/v1/*.proto")
+            include("friendship/v1/*.proto")
+        }
+    }
+}
+
 dependencies {
     implementation(project(":platform"))
     implementation(project(":events:friendship-events"))
