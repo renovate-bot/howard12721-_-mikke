@@ -23,9 +23,6 @@ service MediaService {
   // Resolves media delivery metadata for an authenticated image request.
   rpc GetMediaForDelivery(GetMediaForDeliveryRequest) returns (GetMediaForDeliveryResponse);
 
-  // Marks media as attached to a post.
-  rpc MarkMediaAttached(MarkMediaAttachedRequest) returns (MarkMediaAttachedResponse);
-
   // Soft deletes media.
   rpc DeleteMedia(DeleteMediaRequest) returns (DeleteMediaResponse);
 }
@@ -78,7 +75,6 @@ message BatchGetMediaResponse {
 message GetMediaForDeliveryRequest {
   string media_id = 1;
   MediaVariant variant = 2;
-  string requester_user_id = 3;
 }
 
 message GetMediaForDeliveryResponse {
@@ -86,15 +82,6 @@ message GetMediaForDeliveryResponse {
   MediaVariant variant = 2;
   string object_key = 3;
   string content_type = 4;
-}
-
-message MarkMediaAttachedRequest {
-  string media_id = 1;
-  string post_id = 2;
-}
-
-message MarkMediaAttachedResponse {
-  Media media = 1;
 }
 
 message DeleteMediaRequest {
@@ -112,11 +99,9 @@ message Media {
   string content_type = 6;
   int64 content_length_bytes = 7;
   string etag = 8;
-  string created_by_user_id = 9;
-  string attached_post_id = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp uploaded_at = 12;
-  google.protobuf.Timestamp attached_at = 13;
+  string uploader_user_id = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp uploaded_at = 11;
 }
 
 message MediaVariantInfo {
@@ -145,9 +130,8 @@ enum MediaStatus {
   MEDIA_STATUS_UNSPECIFIED = 0;
   MEDIA_STATUS_PENDING_UPLOAD = 1;
   MEDIA_STATUS_READY = 2;
-  MEDIA_STATUS_ATTACHED = 3;
-  MEDIA_STATUS_DELETED = 4;
-  MEDIA_STATUS_FAILED = 5;
+  MEDIA_STATUS_DELETED = 3;
+  MEDIA_STATUS_FAILED = 4;
 }
 
 enum MediaVariant {

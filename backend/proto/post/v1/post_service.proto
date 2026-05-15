@@ -19,7 +19,6 @@ service PostService {
   rpc UpdatePostCaption(UpdatePostCaptionRequest) returns (UpdatePostCaptionResponse);
   rpc UpdatePostVisibility(UpdatePostVisibilityRequest) returns (UpdatePostVisibilityResponse);
   rpc CheckPostVisibility(CheckPostVisibilityRequest) returns (CheckPostVisibilityResponse);
-  rpc CheckPostVisibilityForViewer(CheckPostVisibilityForViewerRequest) returns (CheckPostVisibilityForViewerResponse);
   rpc GetPostLocationForGuess(GetPostLocationForGuessRequest) returns (GetPostLocationForGuessResponse);
 }
 
@@ -116,16 +115,6 @@ message CheckPostVisibilityResponse {
   Post post = 2;
 }
 
-message CheckPostVisibilityForViewerRequest {
-  string post_id = 1;
-  string viewer_user_id = 2;
-}
-
-message CheckPostVisibilityForViewerResponse {
-  bool can_view = 1;
-  Post post = 2;
-}
-
 message GetPostLocationForGuessRequest {
   string post_id = 1;
 }
@@ -164,5 +153,4 @@ enum PostStatus {
   POST_STATUS_UNSPECIFIED = 0;
   POST_STATUS_ACTIVE = 1;
   POST_STATUS_DELETED = 2;
-  POST_STATUS_PENDING_MEDIA_ATTACH = 3;
 }
