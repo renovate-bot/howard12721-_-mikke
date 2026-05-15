@@ -43,7 +43,10 @@ message GetMyGuessForPostRequest {
 }
 
 message GetMyGuessForPostResponse {
-  Guess guess = 1;
+  // Present only when the caller has already submitted a guess for the post.
+  // Includes the correct point so Gateway can render answered post details
+  // without calling Post Service for the hidden location.
+  GuessResult result = 1;
 }
 
 message BatchGetMyGuessesForPostsRequest {
@@ -51,7 +54,8 @@ message BatchGetMyGuessesForPostsRequest {
 }
 
 message BatchGetMyGuessesForPostsResponse {
-  repeated Guess guesses = 1;
+  // Contains only posts the caller has already answered.
+  repeated GuessResult results = 1;
 }
 
 message ListGuessesForPostRequest {

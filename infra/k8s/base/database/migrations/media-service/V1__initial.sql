@@ -22,6 +22,7 @@ CREATE TABLE media_variants (
     id BINARY(16) NOT NULL,
     media_id BINARY(16) NOT NULL,
     variant VARCHAR(32) NOT NULL,
+    delivery_key VARCHAR(64) NOT NULL,
     object_key VARCHAR(512) NOT NULL,
     status VARCHAR(32) NOT NULL,
     width INT NULL,
@@ -32,6 +33,7 @@ CREATE TABLE media_variants (
     ready_at TIMESTAMP(6) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uq_media_variants_media_variant (media_id, variant),
+    UNIQUE KEY uq_media_variants_delivery_key (delivery_key),
     UNIQUE KEY uq_media_variants_object_key (object_key),
     KEY idx_media_variants_status_created (status, created_at),
     CONSTRAINT fk_media_variants_media_id
