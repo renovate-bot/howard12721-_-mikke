@@ -14,12 +14,14 @@ fun grpcClientChannelFromEnvironment(
     defaultPort: Int,
 ): ManagedChannel {
     val target =
-        System.getenv(targetEnv)
+        System
+            .getenv(targetEnv)
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
             ?: dnsTarget(
                 host =
-                    System.getenv(hostEnv)
+                    System
+                        .getenv(hostEnv)
                         ?.trim()
                         ?.takeIf { it.isNotEmpty() }
                         ?: defaultHost,
