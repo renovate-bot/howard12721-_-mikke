@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: friendship-service
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: friendship-service
   ports:
