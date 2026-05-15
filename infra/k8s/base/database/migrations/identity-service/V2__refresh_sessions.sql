@@ -1,6 +1,6 @@
 CREATE TABLE identity_refresh_sessions (
-    id CHAR(36) NOT NULL,
-    user_id CHAR(36) NOT NULL,
+    id BINARY(16) NOT NULL,
+    user_id BINARY(16) NOT NULL,
     refresh_token_hash CHAR(64) NOT NULL,
     expires_at TIMESTAMP(6) NOT NULL,
     revoked_at TIMESTAMP(6) NULL,
@@ -8,6 +8,7 @@ CREATE TABLE identity_refresh_sessions (
     PRIMARY KEY (id),
     UNIQUE KEY uq_identity_refresh_sessions_refresh_token_hash (refresh_token_hash),
     KEY idx_identity_refresh_sessions_user_id (user_id),
+    KEY idx_identity_refresh_sessions_expires_at (expires_at),
     CONSTRAINT fk_identity_refresh_sessions_user_id
         FOREIGN KEY (user_id) REFERENCES identity_users(id)
         ON DELETE CASCADE

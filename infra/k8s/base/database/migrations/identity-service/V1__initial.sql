@@ -1,16 +1,20 @@
 CREATE TABLE identity_users (
-    id CHAR(36) NOT NULL,
+    id BINARY(16) NOT NULL,
     email VARCHAR(255) NOT NULL,
     normalized_email VARCHAR(255) NOT NULL,
     username VARCHAR(32) NOT NULL,
     normalized_username VARCHAR(32) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
+    avatar_media_id BINARY(16) NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
     password_hash_iterations INT NOT NULL,
     password_hash VARCHAR(512) NOT NULL,
     password_salt VARCHAR(512) NOT NULL,
     created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    deactivated_at TIMESTAMP(6) NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uq_identity_users_normalized_email (normalized_email),
-    UNIQUE KEY uq_identity_users_normalized_username (normalized_username)
+    UNIQUE KEY uq_identity_users_normalized_username (normalized_username),
+    KEY idx_identity_users_status (status)
 );

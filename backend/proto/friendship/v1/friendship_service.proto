@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+package mikke.friendship.v1;
+
+import "common/v1/common.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "jp.xhw.mikke.friendship.v1";
+
+service FriendshipService {
+  rpc SendFriendRequest(SendFriendRequestRequest) returns (SendFriendRequestResponse);
+  rpc AcceptFriendRequest(AcceptFriendRequestRequest) returns (AcceptFriendRequestResponse);
+  rpc RejectFriendRequest(RejectFriendRequestRequest) returns (RejectFriendRequestResponse);
+  rpc CancelFriendRequest(CancelFriendRequestRequest) returns (CancelFriendRequestResponse);
+  rpc RemoveFriend(RemoveFriendRequest) returns (RemoveFriendResponse);
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+  rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
+  rpc GetFriendship(GetFriendshipRequest) returns (GetFriendshipResponse);
+  rpc ListFriends(ListFriendsRequest) returns (ListFriendsResponse);
+  rpc ListFriendUserIdsForFanout(ListFriendUserIdsForFanoutRequest) returns (ListFriendUserIdsForFanoutResponse);
+  rpc ListIncomingFriendRequests(ListIncomingFriendRequestsRequest) returns (ListIncomingFriendRequestsResponse);
+  rpc ListOutgoingFriendRequests(ListOutgoingFriendRequestsRequest) returns (ListOutgoingFriendRequestsResponse);
+  rpc BatchGetFriendshipSummaries(BatchGetFriendshipSummariesRequest) returns (BatchGetFriendshipSummariesResponse);
+  rpc CheckCanViewUserPosts(CheckCanViewUserPostsRequest) returns (CheckCanViewUserPostsResponse);
+  rpc CheckCanViewUserPostsForViewer(CheckCanViewUserPostsForViewerRequest) returns (CheckCanViewUserPostsForViewerResponse);
+}
+
+message SendFriendRequestRequest {
+  string receiver_user_id = 1;
+}
+
+message SendFriendRequestResponse {
+  FriendRequest friend_request = 1;
+}
+
+message AcceptFriendRequestRequest {
+  string friend_request_id = 1;
+}
+
+message AcceptFriendRequestResponse {
+  Friendship friendship = 1;
+}
+
+message RejectFriendRequestRequest {
+  string friend_request_id = 1;
+}
+
+message RejectFriendRequestResponse {
+  FriendRequest friend_request = 1;
+}
+
+message CancelFriendRequestRequest {
+  string friend_request_id = 1;
+}
+
+message CancelFriendRequestResponse {
+  FriendRequest friend_request = 1;
+}
+
+message RemoveFriendRequest {
+  string friend_user_id = 1;
+}
+
+message RemoveFriendResponse {}
+
+message BlockUserRequest {
+  string blocked_user_id = 1;
+}
+
+message BlockUserResponse {
+  BlockRelation block_relation = 1;
+}
+
+message UnblockUserRequest {
+  string blocked_user_id = 1;
+}
+
+message UnblockUserResponse {}
+
+message GetFriendshipRequest {
+  string target_user_id = 1;
+}
+
+message GetFriendshipResponse {
+  FriendshipSummary summary = 1;
+}
+
+message ListFriendsRequest {
+  string target_user_id = 1;
+  mikke.common.v1.PageRequest page = 2;
+}
+
+message ListFriendsResponse {
+  repeated string friend_user_ids = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message ListFriendUserIdsForFanoutRequest {
+  string user_id = 1;
+  mikke.common.v1.PageRequest page = 2;
+}
+
+message ListFriendUserIdsForFanoutResponse {
+  repeated string friend_user_ids = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message ListIncomingFriendRequestsRequest {
+  mikke.common.v1.PageRequest page = 1;
+}
+
+message ListIncomingFriendRequestsResponse {
+  repeated FriendRequest friend_requests = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message ListOutgoingFriendRequestsRequest {
+  mikke.common.v1.PageRequest page = 1;
+}
+
+message ListOutgoingFriendRequestsResponse {
+  repeated FriendRequest friend_requests = 1;
+  mikke.common.v1.PageInfo page_info = 2;
+}
+
+message BatchGetFriendshipSummariesRequest {
+  repeated string target_user_ids = 1;
+}
+
+message BatchGetFriendshipSummariesResponse {
+  repeated FriendshipSummary summaries = 1;
+}
+
+message CheckCanViewUserPostsRequest {
+  string owner_user_id = 1;
+}
+
+message CheckCanViewUserPostsResponse {
+  bool can_view = 1;
+  FriendshipRelationStatus relation_status = 2;
+}
+
+message CheckCanViewUserPostsForViewerRequest {
+  string viewer_user_id = 1;
+  string owner_user_id = 2;
+}
+
+message CheckCanViewUserPostsForViewerResponse {
+  bool can_view = 1;
+  FriendshipRelationStatus relation_status = 2;
+}
+
+message Friendship {
+  string id = 1;
+  string user_low_id = 2;
+  string user_high_id = 3;
+  FriendshipStatus status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp removed_at = 6;
+}
+
+message FriendRequest {
+  string id = 1;
+  string sender_user_id = 2;
+  string receiver_user_id = 3;
+  FriendRequestStatus status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp responded_at = 6;
+  google.protobuf.Timestamp canceled_at = 7;
+}
+
+message BlockRelation {
+  string blocker_user_id = 1;
+  string blocked_user_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+}
+
+message FriendshipSummary {
+  string target_user_id = 1;
+  FriendshipRelationStatus relation_status = 2;
+  bool can_view_posts = 3;
+  bool can_send_request = 4;
+}
+
+enum FriendRequestStatus {
+  FRIEND_REQUEST_STATUS_UNSPECIFIED = 0;
+  FRIEND_REQUEST_STATUS_PENDING = 1;
+  FRIEND_REQUEST_STATUS_ACCEPTED = 2;
+  FRIEND_REQUEST_STATUS_REJECTED = 3;
+  FRIEND_REQUEST_STATUS_CANCELED = 4;
+}
+
+enum FriendshipStatus {
+  FRIENDSHIP_STATUS_UNSPECIFIED = 0;
+  FRIENDSHIP_STATUS_ACTIVE = 1;
+  FRIENDSHIP_STATUS_REMOVED = 2;
+}
+
+enum FriendshipRelationStatus {
+  FRIENDSHIP_RELATION_STATUS_UNSPECIFIED = 0;
+  FRIENDSHIP_RELATION_STATUS_NONE = 1;
+  FRIENDSHIP_RELATION_STATUS_FRIENDS = 2;
+  FRIENDSHIP_RELATION_STATUS_REQUEST_SENT = 3;
+  FRIENDSHIP_RELATION_STATUS_REQUEST_RECEIVED = 4;
+  FRIENDSHIP_RELATION_STATUS_BLOCKED_BY_ME = 5;
+  FRIENDSHIP_RELATION_STATUS_BLOCKED_ME = 6;
+}
