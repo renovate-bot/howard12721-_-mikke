@@ -23,8 +23,6 @@ images:
     newTag: sha-9f775cb85f58d313c3a27c0f2c5f18b3cf398eef
   - name: ghcr.io/howard12721/mikke-guess-service
     newTag: sha-9f775cb85f58d313c3a27c0f2c5f18b3cf398eef
-  - name: ghcr.io/howard12721/mikke-feed-service
-    newTag: sha-9f775cb85f58d313c3a27c0f2c5f18b3cf398eef
   - name: ghcr.io/howard12721/mikke-notification-service
     newTag: sha-9f775cb85f58d313c3a27c0f2c5f18b3cf398eef
 
