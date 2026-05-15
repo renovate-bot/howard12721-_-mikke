@@ -2,13 +2,13 @@ package jp.xhw.mikke.api.auth.infrastructure
 
 import com.google.protobuf.Timestamp
 import io.grpc.ManagedChannel
-import io.grpc.ManagedChannelBuilder
 import io.grpc.Status
 import jp.xhw.mikke.api.auth.application.*
 import jp.xhw.mikke.api.auth.application.AuthSession
 import jp.xhw.mikke.api.http.ApiErrorCode
 import jp.xhw.mikke.api.http.ApiHttpException
 import jp.xhw.mikke.identity.v1.*
+import jp.xhw.mikke.platform.grpc.grpcClientChannelFromEnvironment
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.nio.channels.ClosedChannelException
@@ -57,13 +57,14 @@ class GrpcIdentityAuthGateway(
 
     companion object {
         fun fromEnvironment(): GrpcIdentityAuthGateway {
-            val host = System.getenv("IDENTITY_SERVICE_HOST").orEmpty().ifBlank { "localhost" }
-            val port = System.getenv("IDENTITY_SERVICE_PORT")?.toIntOrNull() ?: 50051
             val channel =
-                ManagedChannelBuilder
-                    .forAddress(host, port)
-                    .usePlaintext()
-                    .build()
+                grpcClientChannelFromEnvironment(
+                    targetEnv = "IDENTITY_SERVICE_TARGET",
+                    hostEnv = "IDENTITY_SERVICE_HOST",
+                    portEnv = "IDENTITY_SERVICE_PORT",
+                    defaultHost = "localhost",
+                    defaultPort = 50051,
+                )
 
             return GrpcIdentityAuthGateway(channel = channel)
         }
