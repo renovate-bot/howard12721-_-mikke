@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: feed-service
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: feed-service
   ports:
