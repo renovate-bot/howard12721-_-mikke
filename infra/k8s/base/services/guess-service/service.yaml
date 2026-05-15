@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: guess-service
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: guess-service
   ports:

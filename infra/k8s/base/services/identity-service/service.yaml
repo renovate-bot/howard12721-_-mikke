@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: identity-service
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: identity-service
   ports:

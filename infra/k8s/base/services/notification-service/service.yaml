@@ -4,6 +4,7 @@ kind: Service
 metadata:
   name: notification-service
 spec:
+  clusterIP: None
   selector:
     app.kubernetes.io/name: notification-service
   ports:
