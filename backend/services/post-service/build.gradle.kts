@@ -9,6 +9,16 @@ application {
     mainClass = "jp.xhw.mikke.services.post.PostServiceApplicationKt"
 }
 
+sourceSets {
+    main {
+        proto {
+            srcDir(rootProject.file("proto"))
+            include("common/v1/*.proto")
+            include("post/v1/*.proto")
+        }
+    }
+}
+
 dependencies {
     implementation(project(":platform"))
     implementation(project(":events:post-events"))

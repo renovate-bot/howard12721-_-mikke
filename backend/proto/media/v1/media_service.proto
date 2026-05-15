@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package mikke.media.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "jp.xhw.mikke.media.v1";
+
+service MediaService {
+  // Issues a short-lived Garage/S3-compatible URL that clients can PUT to.
+  rpc CreateUploadUrl(CreateUploadUrlRequest) returns (CreateUploadUrlResponse);
+
+  // Checks whether the object uploaded through the issued URL is visible in Garage.
+  rpc CheckUpload(CheckUploadRequest) returns (CheckUploadResponse);
+
+  // Returns media metadata and fixed delivery URLs.
+  rpc GetMedia(GetMediaRequest) returns (GetMediaResponse);
+
+  // Returns media metadata and fixed delivery URLs for multiple media IDs.
+  rpc BatchGetMedia(BatchGetMediaRequest) returns (BatchGetMediaResponse);
+
+  // Resolves media delivery metadata for an authenticated image request.
+  rpc GetMediaForDelivery(GetMediaForDeliveryRequest) returns (GetMediaForDeliveryResponse);
+
+  // Marks media as attached to a post.
+  rpc MarkMediaAttached(MarkMediaAttachedRequest) returns (MarkMediaAttachedResponse);
+
+  // Soft deletes media.
+  rpc DeleteMedia(DeleteMediaRequest) returns (DeleteMediaResponse);
+}
+
+message CreateUploadUrlRequest {
+  string content_type = 1;
+  int64 content_length_bytes = 2;
+  string original_file_name = 3;
+}
+
+message CreateUploadUrlResponse {
+  string media_id = 1;
+  string object_key = 2;
+  string upload_url = 3;
+  UploadMethod upload_method = 4;
+  map<string, string> required_headers = 5;
+  google.protobuf.Timestamp expires_at = 6;
+}
+
+message CheckUploadRequest {
+  string media_id = 1;
+  string object_key = 2;
+}
+
+message CheckUploadResponse {
+  string media_id = 1;
+  string object_key = 2;
+  UploadStatus status = 3;
+  int64 content_length_bytes = 4;
+  string content_type = 5;
+  string etag = 6;
+}
+
+message GetMediaRequest {
+  string media_id = 1;
+}
+
+message GetMediaResponse {
+  Media media = 1;
+}
+
+message BatchGetMediaRequest {
+  repeated string media_ids = 1;
+}
+
+message BatchGetMediaResponse {
+  repeated Media media = 1;
+}
+
+message GetMediaForDeliveryRequest {
+  string media_id = 1;
+  MediaVariant variant = 2;
+  string requester_user_id = 3;
+}
+
+message GetMediaForDeliveryResponse {
+  string media_id = 1;
+  MediaVariant variant = 2;
+  string object_key = 3;
+  string content_type = 4;
+}
+
+message MarkMediaAttachedRequest {
+  string media_id = 1;
+  string post_id = 2;
+}
+
+message MarkMediaAttachedResponse {
+  Media media = 1;
+}
+
+message DeleteMediaRequest {
+  string media_id = 1;
+}
+
+message DeleteMediaResponse {}
+
+message Media {
+  string id = 1;
+  string object_key = 2;
+  string original_url = 3;
+  string thumbnail_url = 4;
+  MediaStatus status = 5;
+  string content_type = 6;
+  int64 content_length_bytes = 7;
+  string etag = 8;
+  string created_by_user_id = 9;
+  string attached_post_id = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp uploaded_at = 12;
+  google.protobuf.Timestamp attached_at = 13;
+}
+
+message MediaVariantInfo {
+  string media_id = 1;
+  MediaVariant variant = 2;
+  string object_key = 3;
+  string url = 4;
+  MediaVariantStatus status = 5;
+  int32 width = 6;
+  int32 height = 7;
+}
+
+enum UploadMethod {
+  UPLOAD_METHOD_UNSPECIFIED = 0;
+  UPLOAD_METHOD_PUT = 1;
+}
+
+enum UploadStatus {
+  UPLOAD_STATUS_UNSPECIFIED = 0;
+  UPLOAD_STATUS_PENDING = 1;
+  UPLOAD_STATUS_UPLOADED = 2;
+  UPLOAD_STATUS_INVALID = 3;
+}
+
+enum MediaStatus {
+  MEDIA_STATUS_UNSPECIFIED = 0;
+  MEDIA_STATUS_PENDING_UPLOAD = 1;
+  MEDIA_STATUS_READY = 2;
+  MEDIA_STATUS_ATTACHED = 3;
+  MEDIA_STATUS_DELETED = 4;
+  MEDIA_STATUS_FAILED = 5;
+}
+
+enum MediaVariant {
+  MEDIA_VARIANT_UNSPECIFIED = 0;
+  MEDIA_VARIANT_ORIGINAL = 1;
+  MEDIA_VARIANT_THUMBNAIL = 2;
+}
+
+enum MediaVariantStatus {
+  MEDIA_VARIANT_STATUS_UNSPECIFIED = 0;
+  MEDIA_VARIANT_STATUS_PENDING = 1;
+  MEDIA_VARIANT_STATUS_READY = 2;
+  MEDIA_VARIANT_STATUS_FAILED = 3;
+}

@@ -9,6 +9,16 @@ application {
     mainClass = "jp.xhw.mikke.services.notification.NotificationServiceApplicationKt"
 }
 
+sourceSets {
+    main {
+        proto {
+            srcDir(rootProject.file("proto"))
+            include("common/v1/*.proto")
+            include("notification/v1/*.proto")
+        }
+    }
+}
+
 dependencies {
     implementation(project(":platform"))
     implementation(project(":events:post-events"))
