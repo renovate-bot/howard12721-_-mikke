@@ -12,11 +12,11 @@ data class ValidatedPageRequest<C : PaginationCursor>(
     val cursor: C?,
 )
 
-fun PageRequestInput.validate(
+fun <C : PaginationCursor> PageRequestInput.validate(
     defaultLimit: Int = DEFAULT_PAGE_SIZE,
     maxLimit: Int = MAX_PAGE_SIZE,
-    cursorDecoder: (String) -> PaginationCursor = { token -> CreatedAtIdCursor.decode(token) },
-): ValidatedPageRequest<*> {
+    cursorDecoder: (String) -> C,
+): ValidatedPageRequest<C> {
     val limit =
         when {
             pageSize == 0 -> defaultLimit
@@ -25,14 +25,20 @@ fun PageRequestInput.validate(
             else -> pageSize
         }
 
-    val cursor =
-        pageToken
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
-            ?.let(cursorDecoder)
+    val cursor = pageToken?.trim()?.takeIf { it.isNotEmpty() }?.let(cursorDecoder)
 
     return ValidatedPageRequest(limit = limit, cursor = cursor)
 }
+
+fun PageRequestInput.validate(
+    defaultLimit: Int = DEFAULT_PAGE_SIZE,
+    maxLimit: Int = MAX_PAGE_SIZE,
+): ValidatedPageRequest<CreatedAtIdCursor> =
+    validate(
+        defaultLimit = defaultLimit,
+        maxLimit = maxLimit,
+        cursorDecoder = CreatedAtIdCursor.Companion::decode,
+    )
 
 const val DEFAULT_PAGE_SIZE = 20
 const val MAX_PAGE_SIZE = 100
