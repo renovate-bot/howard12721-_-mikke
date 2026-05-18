@@ -33,12 +33,16 @@ class RedisStreamConsumerGroup(
                 consumerGroup,
                 XGroupCreateArgs().mkstream(true),
             )
-        } catch (_: RedisCommandExecutionException) {
+        } catch (e: RedisCommandExecutionException) {
+            if (!isBusyGroupException(e)) {
+                throw e
+            }
             // Group already exists.
-        } catch (e: Exception) {
-            throw e
         }
     }
+
+    private fun isBusyGroupException(e: RedisCommandExecutionException): Boolean =
+        e.message?.contains("BUSYGROUP") == true
 
     fun read(
         count: Long = 10,
