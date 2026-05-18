@@ -89,7 +89,7 @@ fun <T> buildPageSlice(
     nextCursor: CreatedAtIdCursor?,
 ): PageSlice<T> {
     val hasNextPage = items.size > limit
-    val pageItems = if (hasNextPage) items.dropLast(1) else items
+    val pageItems = if (hasNextPage) items.take(limit) else items
     val nextPageToken = if (hasNextPage && nextCursor != null) CreatedAtIdCursor.encode(nextCursor) else null
 
     return PageSlice(
