@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename")
+
 package jp.xhw.mikke.platform.redis
 
 import io.lettuce.core.RedisClient
