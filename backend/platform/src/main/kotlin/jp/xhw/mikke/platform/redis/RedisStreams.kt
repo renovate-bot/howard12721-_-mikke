@@ -41,8 +41,7 @@ class RedisStreamConsumerGroup(
         }
     }
 
-    private fun isBusyGroupException(e: RedisCommandExecutionException): Boolean =
-        e.message?.contains("BUSYGROUP") == true
+    private fun isBusyGroupException(e: RedisCommandExecutionException): Boolean = e.message?.contains("BUSYGROUP") == true
 
     fun read(
         count: Long = 10,
