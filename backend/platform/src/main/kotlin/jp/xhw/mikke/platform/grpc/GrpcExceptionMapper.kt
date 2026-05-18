@@ -14,12 +14,12 @@ fun MikkeException.toStatus(): Status =
         else -> Status.INTERNAL.withDescription(message)
     }
 
-fun MikkeException.toStatusException(): StatusException = StatusException(toStatus())
+fun MikkeException.toStatusException(): StatusException = toStatus().withCause(this).asException()
 
 fun Throwable.toStatusException(): StatusException =
     when (this) {
         is StatusException -> this
-        is StatusRuntimeException -> StatusException(status, trailers)
+        is StatusRuntimeException -> status.withCause(this).asException(trailers)
         is MikkeException -> toStatusException()
         else -> StatusException(Status.INTERNAL.withDescription(message ?: "Internal error").withCause(this))
     }
