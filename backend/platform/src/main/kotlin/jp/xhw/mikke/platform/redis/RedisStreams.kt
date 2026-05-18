@@ -23,6 +23,9 @@ class RedisStreamConsumerGroup(
     val consumerGroup: String,
     private val consumerName: String,
 ) {
+    private val staleClaimLock = Any()
+    private var staleClaimCursor: String = "0-0"
+
     fun ensureGroup(startId: String = "0") {
         try {
             commands.xgroupCreate(
@@ -63,19 +66,22 @@ class RedisStreamConsumerGroup(
     fun claimStale(
         minIdle: Duration,
         count: Long = 10,
-    ): List<RedisStreamRecord> {
-        val claimed =
-            commands.xautoclaim(
-                streamName,
-                XAutoClaimArgs<String>()
-                    .minIdleTime(minIdle)
-                    .startId("0-0")
-                    .count(count)
-                    .consumer(Consumer.from(consumerGroup, consumerName)),
-            )
+    ): List<RedisStreamRecord> =
+        synchronized(staleClaimLock) {
+            val claimed =
+                commands.xautoclaim(
+                    streamName,
+                    XAutoClaimArgs<String>()
+                        .minIdleTime(minIdle)
+                        .startId(staleClaimCursor)
+                        .count(count)
+                        .consumer(Consumer.from(consumerGroup, consumerName)),
+                )
 
-        return claimed.messages.map(::toRecord)
-    }
+            staleClaimCursor = claimed.id
+
+            claimed.messages.map(::toRecord)
+        }
 }
 
 private fun toRecord(message: StreamMessage<String, String>): RedisStreamRecord =
