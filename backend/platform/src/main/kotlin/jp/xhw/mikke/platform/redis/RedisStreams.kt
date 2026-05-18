@@ -1,12 +1,6 @@
 package jp.xhw.mikke.platform.redis
 
-import io.lettuce.core.Consumer
-import io.lettuce.core.Limit
-import io.lettuce.core.Range
-import io.lettuce.core.StreamMessage
-import io.lettuce.core.XAutoClaimArgs
-import io.lettuce.core.XGroupCreateArgs
-import io.lettuce.core.XReadArgs
+import io.lettuce.core.*
 import io.lettuce.core.api.sync.RedisStreamCommands
 import io.lettuce.core.models.stream.PendingMessage
 import java.time.Duration
@@ -36,8 +30,10 @@ class RedisStreamConsumerGroup(
                 consumerGroup,
                 XGroupCreateArgs().mkstream(true),
             )
-        } catch (_: Exception) {
+        } catch (_: RedisCommandExecutionException) {
             // Group already exists.
+        } catch (e: Exception) {
+            throw e
         }
     }
 
