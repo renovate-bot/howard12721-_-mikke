@@ -2,6 +2,7 @@ package jp.xhw.mikke.platform.grpc
 
 import io.grpc.Status
 import io.grpc.StatusException
+import io.grpc.StatusRuntimeException
 
 fun MikkeException.toStatus(): Status =
     when (this) {
@@ -18,6 +19,7 @@ fun MikkeException.toStatusException(): StatusException = StatusException(toStat
 fun Throwable.toStatusException(): StatusException =
     when (this) {
         is StatusException -> this
+        is StatusRuntimeException -> StatusException(status, trailers)
         is MikkeException -> toStatusException()
         else -> StatusException(Status.INTERNAL.withDescription(message ?: "Internal error").withCause(this))
     }
